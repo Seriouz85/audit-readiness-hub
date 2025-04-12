@@ -43,15 +43,6 @@ const Standards = () => {
     setIsGridView(!isGridView);
   };
 
-  // Group standards into rows of 3 for horizontal display
-  const groupedStandards = () => {
-    const result = [];
-    for (let i = 0; i < filteredStandards.length; i += 3) {
-      result.push(filteredStandards.slice(i, i + 3));
-    }
-    return result;
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -123,17 +114,16 @@ const Standards = () => {
             </div>
           ) : (
             <div className="space-y-6">
-              {groupedStandards().map((row, rowIndex) => (
-                <div key={rowIndex} className="flex flex-nowrap overflow-x-auto gap-6 pb-2">
-                  {row.map((standard) => (
-                    <div key={standard.id} className="min-w-[300px] md:min-w-[350px]">
-                      <StandardCard 
-                        standard={standard}
-                        requirementCount={getRequirementCount(standard.id)}
-                        onExport={() => exportStandard(standard.id)}
-                      />
-                    </div>
-                  ))}
+              {filteredStandards.map((standard) => (
+                <div key={standard.id} className="flex overflow-x-auto pb-2">
+                  <div className="min-w-full md:min-w-[600px] lg:min-w-[800px]">
+                    <StandardCard 
+                      standard={standard}
+                      requirementCount={getRequirementCount(standard.id)}
+                      onExport={() => exportStandard(standard.id)}
+                      horizontal={true}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
