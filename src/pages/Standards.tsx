@@ -6,21 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { StandardCard } from "@/components/standards/StandardCard";
 import { standards, requirements } from "@/data/mockData";
 import { StandardType } from "@/types";
-import { Plus, Search, Filter, FileDown, FileUp, LayoutGrid } from "lucide-react";
+import { Plus, Search, Filter, FileDown, FileUp, LayoutGrid, Rows3 } from "lucide-react";
 import { toast } from "@/utils/toast";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 
 const Standards = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<StandardType | "all">("all");
   const [visibleStandards, setVisibleStandards] = useState(standards);
-  const [isCarouselView, setIsCarouselView] = useState(true);
+  const [isGridView, setIsGridView] = useState(true);
 
   const filteredStandards = visibleStandards.filter((standard) => {
     const matchesSearch = 
@@ -47,7 +40,16 @@ const Standards = () => {
   };
 
   const toggleView = () => {
-    setIsCarouselView(!isCarouselView);
+    setIsGridView(!isGridView);
+  };
+
+  // Group standards into rows of 3 for horizontal display
+  const groupedStandards = () => {
+    const result = [];
+    for (let i = 0; i < filteredStandards.length; i += 3) {
+      result.push(filteredStandards.slice(i, i + 3));
+    }
+    return result;
   };
 
   return (
@@ -93,8 +95,8 @@ const Standards = () => {
               <SelectItem value="guideline">Guideline</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon" onClick={toggleView} title={isCarouselView ? "Switch to grid view" : "Switch to carousel view"}>
-            <LayoutGrid className="h-4 w-4" />
+          <Button variant="outline" size="icon" onClick={toggleView} title={isGridView ? "Switch to row view" : "Switch to grid view"}>
+            {isGridView ? <Rows3 className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
           </Button>
         </div>
       </div>
@@ -108,27 +110,7 @@ const Standards = () => {
       
       {filteredStandards.length > 0 ? (
         <>
-          {isCarouselView ? (
-            <div className="py-6">
-              <Carousel className="w-full">
-                <CarouselContent className="-ml-2 md:-ml-4">
-                  {filteredStandards.map((standard) => (
-                    <CarouselItem key={standard.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                      <div className="h-full">
-                        <StandardCard 
-                          standard={standard}
-                          requirementCount={getRequirementCount(standard.id)}
-                          onExport={() => exportStandard(standard.id)}
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="ml-2" />
-                <CarouselNext className="mr-2" />
-              </Carousel>
-            </div>
-          ) : (
+          {isGridView ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredStandards.map((standard) => (
                 <StandardCard 
@@ -137,6 +119,22 @@ const Standards = () => {
                   requirementCount={getRequirementCount(standard.id)}
                   onExport={() => exportStandard(standard.id)}
                 />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {groupedStandards().map((row, rowIndex) => (
+                <div key={rowIndex} className="flex flex-nowrap overflow-x-auto gap-6 pb-2">
+                  {row.map((standard) => (
+                    <div key={standard.id} className="min-w-[300px] md:min-w-[350px]">
+                      <StandardCard 
+                        standard={standard}
+                        requirementCount={getRequirementCount(standard.id)}
+                        onExport={() => exportStandard(standard.id)}
+                      />
+                    </div>
+                  ))}
+                </div>
               ))}
             </div>
           )}
