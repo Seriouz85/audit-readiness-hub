@@ -6,13 +6,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { StandardCard } from "@/components/standards/StandardCard";
 import { standards, requirements } from "@/data/mockData";
 import { StandardType } from "@/types";
-import { Plus, Search, Filter, FileDown, FileUp } from "lucide-react";
+import { Plus, Search, Filter, FileDown, FileUp, LayoutGrid } from "lucide-react";
 import { toast } from "@/utils/toast";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const Standards = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<StandardType | "all">("all");
   const [visibleStandards, setVisibleStandards] = useState(standards);
+  const [isCarouselView, setIsCarouselView] = useState(true);
 
   const filteredStandards = visibleStandards.filter((standard) => {
     const matchesSearch = 
@@ -36,6 +44,10 @@ const Standards = () => {
 
   const exportStandard = (id: string) => {
     toast.success(`Standard ${id} exported successfully`);
+  };
+
+  const toggleView = () => {
+    setIsCarouselView(!isCarouselView);
   };
 
   return (
@@ -81,6 +93,9 @@ const Standards = () => {
               <SelectItem value="guideline">Guideline</SelectItem>
             </SelectContent>
           </Select>
+          <Button variant="outline" size="icon" onClick={toggleView} title={isCarouselView ? "Switch to grid view" : "Switch to carousel view"}>
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
         </div>
       </div>
       
@@ -92,16 +107,40 @@ const Standards = () => {
       </div>
       
       {filteredStandards.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredStandards.map((standard) => (
-            <StandardCard 
-              key={standard.id} 
-              standard={standard}
-              requirementCount={getRequirementCount(standard.id)}
-              onExport={() => exportStandard(standard.id)}
-            />
-          ))}
-        </div>
+        <>
+          {isCarouselView ? (
+            <div className="py-6">
+              <Carousel className="w-full">
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {filteredStandards.map((standard) => (
+                    <CarouselItem key={standard.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                      <div className="h-full">
+                        <StandardCard 
+                          standard={standard}
+                          requirementCount={getRequirementCount(standard.id)}
+                          onExport={() => exportStandard(standard.id)}
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="ml-2" />
+                <CarouselNext className="mr-2" />
+              </Carousel>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredStandards.map((standard) => (
+                <StandardCard 
+                  key={standard.id} 
+                  standard={standard}
+                  requirementCount={getRequirementCount(standard.id)}
+                  onExport={() => exportStandard(standard.id)}
+                />
+              ))}
+            </div>
+          )}
+        </>
       ) : (
         <div className="text-center py-12 border rounded-lg bg-background">
           <h3 className="text-lg font-medium">No standards found</h3>

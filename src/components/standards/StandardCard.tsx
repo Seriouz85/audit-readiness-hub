@@ -17,16 +17,16 @@ export function StandardCard({ standard, requirementCount, onExport }: StandardC
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-lg">{standard.name}</CardTitle>
+            <CardTitle className="text-lg line-clamp-1">{standard.name}</CardTitle>
             <CardDescription>Version {standard.version}</CardDescription>
           </div>
-          <div className="px-2 py-1 text-xs font-medium rounded bg-muted">
+          <div className="px-2 py-1 text-xs font-medium rounded bg-muted shrink-0 ml-2">
             {standard.type}
           </div>
         </div>
       </CardHeader>
       <CardContent className="flex-grow pb-2">
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
           {standard.description}
         </p>
         <div className="flex flex-wrap gap-4 text-sm">
@@ -36,7 +36,7 @@ export function StandardCard({ standard, requirementCount, onExport }: StandardC
           </div>
           <div className="flex items-center gap-1">
             <FileText size={16} className="text-muted-foreground" />
-            <span>{standard.category}</span>
+            <span className="line-clamp-1">{standard.category}</span>
           </div>
         </div>
       </CardContent>
@@ -44,17 +44,20 @@ export function StandardCard({ standard, requirementCount, onExport }: StandardC
         <Button variant="outline" size="sm" asChild className="flex-1">
           <Link to={`/requirements?standard=${standard.id}`}>
             <BookOpen size={16} className="mr-2" />
-            Requirements
+            <span className="hidden sm:inline">Requirements</span>
+            <span className="sm:hidden">View</span>
           </Link>
         </Button>
         <Button variant="outline" size="sm" className="flex-1" onClick={() => onExport?.(standard.id)}>
           <FileDown size={16} className="mr-2" />
-          Export
+          <span className="hidden sm:inline">Export</span>
+          <span className="sm:hidden">Export</span>
         </Button>
         <Button variant="default" size="sm" asChild className="flex-1">
           <Link to={`/assessments?standard=${standard.id}`}>
             <BarChart3 size={16} className="mr-2" />
-            Assess
+            <span className="hidden sm:inline">Assess</span>
+            <span className="sm:hidden">Assess</span>
           </Link>
         </Button>
       </CardFooter>
