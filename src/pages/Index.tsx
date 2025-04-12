@@ -1,13 +1,26 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import AppLayout from "@/components/layout/AppLayout";
+import Dashboard from "@/pages/Dashboard";
+import Standards from "@/pages/Standards";
+import Requirements from "@/pages/Requirements";
+import Assessments from "@/pages/Assessments";
+import Reports from "@/pages/Reports";
+import Settings from "@/pages/Settings";
+import NotFound from "@/pages/NotFound";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <AppLayout>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/standards" element={<Standards />} />
+        <Route path="/requirements" element={<Requirements />} />
+        <Route path="/assessments" element={<Assessments />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/settings" element={<Settings />} />
+      </Routes>
+    </AppLayout>
   );
 };
 

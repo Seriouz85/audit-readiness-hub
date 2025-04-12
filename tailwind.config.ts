@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,19 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Custom colors for cybersecurity theme
+				cyber: {
+					primary: '#0F4C81',
+					secondary: '#2E8BC0',
+					accent: '#16DB93',
+					warning: '#FFBC42',
+					danger: '#D81159',
+					background: '#F5F7FA',
+					foreground: '#1A2A3A',
+					'card-bg': '#FFFFFF',
+					'sidebar-bg': '#1A2A3A',
+					'sidebar-text': '#F5F7FA',
 				}
 			},
 			borderRadius: {
