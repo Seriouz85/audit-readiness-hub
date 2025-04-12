@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Requirement, RequirementStatus } from "@/types";
 import { useState } from "react";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "@/utils/toast";
 
 interface RequirementDetailProps {
   requirement: Requirement;
