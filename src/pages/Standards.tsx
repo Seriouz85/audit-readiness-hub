@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,6 +14,11 @@ const Standards = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<StandardType | "all">("all");
   const [visibleStandards, setVisibleStandards] = useState(standards);
+
+  // Make sure we use the standards from the data file
+  useEffect(() => {
+    setVisibleStandards(standards);
+  }, []);
 
   const filteredStandards = visibleStandards.filter((standard) => {
     const matchesSearch = 
@@ -126,20 +131,20 @@ const Standards = () => {
         <h2 className="text-lg font-medium mb-2">ISO 27001:2022 Details</h2>
         <p className="text-muted-foreground mb-4">
           ISO/IEC 27001:2022 is the latest version of the international standard for information security management systems (ISMS).
-          It includes controls across multiple domains to help organizations establish, implement, maintain, and continually improve an ISMS.
+          It includes requirements across multiple domains to help organizations establish, implement, maintain, and continually improve an ISMS.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
           <div className="p-3 bg-background rounded border">
-            <h3 className="font-medium">A5-A8</h3>
-            <p className="text-sm text-muted-foreground">Security Policies, Organization, Human Resources, Asset Management</p>
+            <h3 className="font-medium">Context & Leadership (4-5)</h3>
+            <p className="text-sm text-muted-foreground">Organization context, interested parties, ISMS scope, leadership commitment</p>
           </div>
           <div className="p-3 bg-background rounded border">
-            <h3 className="font-medium">A9-A12</h3>
-            <p className="text-sm text-muted-foreground">Access Control, Cryptography, Physical Security, Operations</p>
+            <h3 className="font-medium">Planning & Support (6-7)</h3>
+            <p className="text-sm text-muted-foreground">Risk assessment, risk treatment, objectives, competence, awareness, documentation</p>
           </div>
           <div className="p-3 bg-background rounded border">
-            <h3 className="font-medium">A13-A18</h3>
-            <p className="text-sm text-muted-foreground">Communications, System Acquisition, Supplier Relationships, Incident Management</p>
+            <h3 className="font-medium">Operation & Improvement (8-10)</h3>
+            <p className="text-sm text-muted-foreground">Operational planning, monitoring, internal audit, management review, continual improvement</p>
           </div>
         </div>
       </div>
