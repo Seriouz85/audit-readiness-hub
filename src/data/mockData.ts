@@ -1,3 +1,4 @@
+
 import { Standard, Requirement, Assessment, ComplianceStats } from '@/types';
 
 // Mock Standards
@@ -649,10 +650,10 @@ export const dashboardStats: ComplianceStats = {
   totalRequirements: requirements.length,
   totalAssessments: assessments.length,
   complianceScore: 78,
-  requirementStatusCounts: [
-    { name: 'Fulfilled', value: 42 },
-    { name: 'Partially Fulfilled', value: 35 },
-    { name: 'Not Fulfilled', value: 12 },
-    { name: 'Not Applicable', value: 5 }
-  ]
+  requirementStatusCounts: {
+    fulfilled: 42,
+    partiallyFulfilled: 35,
+    notFulfilled: 12,
+    notApplicable: 5
+  }
 };
