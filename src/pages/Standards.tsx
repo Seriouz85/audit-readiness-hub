@@ -6,14 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { StandardCard } from "@/components/standards/StandardCard";
 import { standards, requirements } from "@/data/mockData";
 import { StandardType } from "@/types";
-import { Plus, Search, Filter, FileDown, FileUp, LayoutGrid, Rows3 } from "lucide-react";
+import { Plus, Search, Filter, FileUp } from "lucide-react";
 import { toast } from "@/utils/toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Standards = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<StandardType | "all">("all");
   const [visibleStandards, setVisibleStandards] = useState(standards);
-  const [isGridView, setIsGridView] = useState(true);
 
   const filteredStandards = visibleStandards.filter((standard) => {
     const matchesSearch = 
@@ -37,10 +37,6 @@ const Standards = () => {
 
   const exportStandard = (id: string) => {
     toast.success(`Standard ${id} exported successfully`);
-  };
-
-  const toggleView = () => {
-    setIsGridView(!isGridView);
   };
 
   return (
@@ -86,9 +82,6 @@ const Standards = () => {
               <SelectItem value="guideline">Guideline</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon" onClick={toggleView} title={isGridView ? "Switch to row view" : "Switch to grid view"}>
-            {isGridView ? <Rows3 className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-          </Button>
         </div>
       </div>
       
@@ -100,35 +93,20 @@ const Standards = () => {
       </div>
       
       {filteredStandards.length > 0 ? (
-        <>
-          {isGridView ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredStandards.map((standard) => (
+        <ScrollArea className="h-[calc(100vh-420px)]">
+          <div className="space-y-4">
+            {filteredStandards.map((standard) => (
+              <div key={standard.id} className="pb-4">
                 <StandardCard 
-                  key={standard.id} 
                   standard={standard}
                   requirementCount={getRequirementCount(standard.id)}
                   onExport={() => exportStandard(standard.id)}
+                  horizontal={true}
                 />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {filteredStandards.map((standard) => (
-                <div key={standard.id} className="flex overflow-x-auto pb-2">
-                  <div className="min-w-full md:min-w-[600px] lg:min-w-[800px]">
-                    <StandardCard 
-                      standard={standard}
-                      requirementCount={getRequirementCount(standard.id)}
-                      onExport={() => exportStandard(standard.id)}
-                      horizontal={true}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
       ) : (
         <div className="text-center py-12 border rounded-lg bg-background">
           <h3 className="text-lg font-medium">No standards found</h3>

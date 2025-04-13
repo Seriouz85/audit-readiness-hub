@@ -14,9 +14,9 @@ interface StandardCardProps {
 
 export function StandardCard({ standard, requirementCount, onExport, horizontal = false }: StandardCardProps) {
   return (
-    <Card className={`h-full flex flex-col overflow-hidden border-muted transition-all duration-200 hover:border-primary/50 hover:shadow-md ${horizontal ? 'flex-row' : ''}`}>
-      <div className={horizontal ? 'flex-1' : 'flex flex-col'}>
-        <CardHeader className={`pb-2 ${horizontal ? 'flex-shrink-0' : ''}`}>
+    <Card className={`w-full border-muted transition-all duration-200 hover:border-primary/50 hover:shadow-md ${horizontal ? 'flex' : ''}`}>
+      <div className={`${horizontal ? 'flex-1' : ''}`}>
+        <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
             <div>
               <CardTitle className="text-lg line-clamp-1">{standard.name}</CardTitle>
@@ -27,28 +27,12 @@ export function StandardCard({ standard, requirementCount, onExport, horizontal 
             </div>
           </div>
         </CardHeader>
-        <CardContent className={`${horizontal ? 'py-6 px-6' : 'flex-grow pb-2'}`}>
-          <p className={`text-sm text-muted-foreground ${horizontal ? 'mb-0' : 'mb-4'} ${horizontal ? '' : 'line-clamp-3'}`}>
+        <CardContent className="pb-2">
+          <p className="text-sm text-muted-foreground mb-4">
             {standard.description}
           </p>
-          {!horizontal && (
-            <div className="flex flex-wrap gap-4 text-sm">
-              <div className="flex items-center gap-1">
-                <BookOpen size={16} className="text-muted-foreground" />
-                <span className="font-medium">{requirementCount} requirements</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <FileText size={16} className="text-muted-foreground" />
-                <span className="line-clamp-1">{standard.category}</span>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </div>
-      <div className={horizontal ? 'flex flex-col justify-between border-l bg-muted/5 p-4 min-w-[200px]' : ''}>
-        {horizontal && (
-          <div className="mb-4">
-            <div className="flex items-center gap-1 mb-2">
+          <div className="flex flex-wrap gap-4 text-sm">
+            <div className="flex items-center gap-1">
               <BookOpen size={16} className="text-muted-foreground" />
               <span className="font-medium">{requirementCount} requirements</span>
             </div>
@@ -57,8 +41,32 @@ export function StandardCard({ standard, requirementCount, onExport, horizontal 
               <span className="line-clamp-1">{standard.category}</span>
             </div>
           </div>
-        )}
-        <CardFooter className={`flex gap-2 ${horizontal ? 'p-0 border-0 bg-transparent flex-wrap' : 'pt-2 border-t bg-muted/10'}`}>
+        </CardContent>
+      </div>
+      {horizontal && (
+        <div className="border-l bg-muted/5 p-4 w-[220px] flex flex-col justify-center">
+          <CardFooter className="flex gap-2 p-0 pt-2 flex-wrap">
+            <Button variant="outline" size="sm" asChild className="w-full mb-2">
+              <Link to={`/requirements?standard=${standard.id}`}>
+                <BookOpen size={16} className="mr-2" />
+                <span>Requirements</span>
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" className="w-full mb-2" onClick={() => onExport?.(standard.id)}>
+              <FileDown size={16} className="mr-2" />
+              <span>Export</span>
+            </Button>
+            <Button variant="default" size="sm" asChild className="w-full">
+              <Link to={`/assessments?standard=${standard.id}`}>
+                <BarChart3 size={16} className="mr-2" />
+                <span>Assess</span>
+              </Link>
+            </Button>
+          </CardFooter>
+        </div>
+      )}
+      {!horizontal && (
+        <CardFooter className="flex gap-2 pt-2 border-t bg-muted/10">
           <Button variant="outline" size="sm" asChild className="flex-1">
             <Link to={`/requirements?standard=${standard.id}`}>
               <BookOpen size={16} className="mr-2" />
@@ -79,7 +87,7 @@ export function StandardCard({ standard, requirementCount, onExport, horizontal 
             </Link>
           </Button>
         </CardFooter>
-      </div>
+      )}
     </Card>
   );
 }
