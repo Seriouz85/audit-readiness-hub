@@ -1,4 +1,3 @@
-
 import { Standard, Requirement, Assessment, ComplianceStats } from '@/types';
 
 // Mock Standards
@@ -569,3 +568,91 @@ export const requirements: Requirement[] = [
   
   // Continue with additional requirements as needed...
 ];
+
+// Mock Assessments
+export const assessments: Assessment[] = [
+  {
+    id: 'assessment-1',
+    name: 'ISO 27001 Annual Assessment',
+    standardId: 'iso-27001',
+    description: 'Comprehensive review of ISO 27001 compliance across all departments.',
+    status: 'in-progress',
+    progress: 67,
+    startDate: '2024-01-15T10:00:00Z',
+    endDate: null,
+    assessorName: 'John Smith',
+    assessorId: 'user-1',
+    updatedAt: '2024-03-28T14:00:00Z',
+    createdAt: '2024-01-15T10:00:00Z',
+  },
+  {
+    id: 'assessment-2',
+    name: 'ISO 27001 Q4 2023 Assessment',
+    standardId: 'iso-27001',
+    description: 'End of year review focusing on high-risk areas of ISO 27001.',
+    status: 'completed',
+    progress: 100,
+    startDate: '2023-10-01T09:00:00Z',
+    endDate: '2023-12-15T16:00:00Z',
+    assessorName: 'John Smith',
+    assessorId: 'user-1',
+    updatedAt: '2023-12-15T16:00:00Z',
+    createdAt: '2023-10-01T09:00:00Z',
+  },
+  {
+    id: 'assessment-3',
+    name: 'NIS2 Gap Analysis',
+    standardId: 'nis2',
+    description: 'Initial assessment of compliance with NIS2 directive requirements.',
+    status: 'in-progress',
+    progress: 35,
+    startDate: '2024-02-10T11:00:00Z',
+    endDate: null,
+    assessorName: 'Emily Johnson',
+    assessorId: 'user-2',
+    updatedAt: '2024-03-25T09:30:00Z',
+    createdAt: '2024-02-10T11:00:00Z',
+  },
+  {
+    id: 'assessment-4',
+    name: 'GDPR Annual Review',
+    standardId: 'gdpr',
+    description: 'Annual assessment of GDPR compliance focusing on data handling processes.',
+    status: 'completed',
+    progress: 100,
+    startDate: '2023-11-05T13:00:00Z',
+    endDate: '2024-01-20T15:45:00Z',
+    assessorName: 'Emily Johnson',
+    assessorId: 'user-2',
+    updatedAt: '2024-01-20T15:45:00Z',
+    createdAt: '2023-11-05T13:00:00Z',
+  },
+  {
+    id: 'assessment-5',
+    name: 'ISO 27001 Cloud Security',
+    standardId: 'iso-27001',
+    description: 'Focused assessment on cloud environment controls from ISO 27001.',
+    status: 'draft',
+    progress: 10,
+    startDate: '2024-03-20T10:00:00Z',
+    endDate: null,
+    assessorName: 'Robert Chen',
+    assessorId: 'user-3',
+    updatedAt: '2024-03-20T10:00:00Z',
+    createdAt: '2024-03-20T10:00:00Z',
+  }
+];
+
+// Dashboard Stats
+export const dashboardStats: ComplianceStats = {
+  totalStandards: standards.length,
+  totalRequirements: requirements.length,
+  totalAssessments: assessments.length,
+  complianceScore: 78,
+  requirementStatusCounts: [
+    { name: 'Fulfilled', value: 42 },
+    { name: 'Partially Fulfilled', value: 35 },
+    { name: 'Not Fulfilled', value: 12 },
+    { name: 'Not Applicable', value: 5 }
+  ]
+};
