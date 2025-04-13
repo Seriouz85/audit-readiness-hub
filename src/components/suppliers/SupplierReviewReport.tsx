@@ -121,32 +121,40 @@ export const SupplierReviewReport = ({
     selectedStandardIds.includes(std.id)
   );
   
-  // Enhanced requirements with status
+  // Enhanced requirements with status, filtered by selected standards
   useEffect(() => {
-    const enhanced = requirements.map(req => {
-      const relatedRequirement = supplier.associatedStandards
+    console.log('SupplierReviewReport: Updating enhanced requirements for standards:', selectedStandardIds);
+    
+    const relevantRequirements = requirements.filter(req => 
+      selectedStandardIds.includes(req.standardId)
+    );
+
+    const enhanced = relevantRequirements.map(req => {
+      // You might want more sophisticated logic here to determine initial status
+      // For now, let's default based on whether it's associated with the supplier *at all*
+      const isAssociated = supplier.associatedStandards
         .find(s => s.standardId === req.standardId)?.requirementIds
         .includes(req.id);
-      
+        
       return {
         ...req,
-        supplierStatus: relatedRequirement ? 'fulfilled' : 'not-fulfilled' as RequirementStatus,
-        supplierNotes: '',
-        supplierEvidence: '',
+        // Default status - might need adjustment based on actual assessment logic
+        supplierStatus: isAssociated ? 'fulfilled' : 'not-fulfilled' as RequirementStatus, 
+        supplierNotes: '', // Initialize notes
+        supplierEvidence: '', // Initialize evidence
       };
     });
     
-    // Debug
-    if (enhanced.length > 0) {
-      console.log({
-        standardIds: standards.map(s => s.id),
-        requirementsCount: requirements.length,
-        requirementsForStandards: requirements.filter(req => selectedStandardIds.includes(req.standardId)).length
-      });
-    }
+    console.log(`Processed ${enhanced.length} requirements for the report.`);
     
     setEnhancedRequirements(enhanced);
-  }, [selectedStandardIds, requirements, standards, supplier.associatedStandards]);
+    
+    // Set the active standard if it's not already set or invalid
+    if (selectedStandardIds.length > 0 && (!activeStandardId || !selectedStandardIds.includes(activeStandardId))) {
+      setActiveStandardId(selectedStandardIds[0]);
+    }
+
+  }, [selectedStandardIds, requirements, supplier.associatedStandards]); // Removed 'standards' as it wasn't used
   
   // Get filtered requirements based on active standard
   const filteredRequirements = activeStandardId 
