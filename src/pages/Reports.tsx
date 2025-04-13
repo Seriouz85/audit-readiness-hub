@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,11 +10,16 @@ const Reports = () => {
   
   const filteredReports = standardFilter === "all" 
     ? assessments.filter(a => a.status === "completed") 
-    : assessments.filter(a => a.status === "completed" && a.standardId === standardFilter);
+    : assessments.filter(a => a.status === "completed" && a.standardIds.includes(standardFilter));
   
   const getStandardName = (id: string): string => {
     const standard = standards.find(s => s.id === id);
     return standard ? standard.name : id;
+  };
+
+  // Get the primary standard ID for a report
+  const getPrimaryStandard = (standardIds: string[]): string => {
+    return standardIds.length > 0 ? standardIds[0] : 'unknown';
   };
 
   return (
@@ -66,7 +70,7 @@ const Reports = () => {
                   <TableCell className="font-medium">
                     {report.name} Report
                   </TableCell>
-                  <TableCell>{getStandardName(report.standardId)}</TableCell>
+                  <TableCell>{getStandardName(getPrimaryStandard(report.standardIds))}</TableCell>
                   <TableCell>{report.endDate ? new Date(report.endDate).toLocaleDateString() : 'N/A'}</TableCell>
                   <TableCell>
                     <div className="flex items-center">

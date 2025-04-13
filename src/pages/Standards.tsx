@@ -1,19 +1,37 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StandardCard } from "@/components/standards/StandardCard";
 import { standards, requirements } from "@/data/mockData";
-import { StandardType } from "@/types";
-import { Plus, Search, Filter, FileUp } from "lucide-react";
+import { StandardType, Standard } from "@/types";
+import { Plus, Search, Filter, FileUp, ClipboardCheck, Download } from "lucide-react";
 import { toast } from "@/utils/toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Standards = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<StandardType | "all">("all");
   const [visibleStandards, setVisibleStandards] = useState(standards);
+  const [isSOADialogOpen, setIsSOADialogOpen] = useState(false);
+  const [applicableStandards, setApplicableStandards] = useState<Record<string, boolean>>(
+    standards.reduce((acc, standard) => ({...acc, [standard.id]: false}), {})
+  );
+  const [justification, setJustification] = useState<Record<string, string>>(
+    standards.reduce((acc, standard) => ({...acc, [standard.id]: ""}), {})
+  );
 
   const filteredStandards = visibleStandards.filter((standard) => {
     const matchesSearch = 
@@ -39,11 +57,121 @@ const Standards = () => {
     toast.success(`Standard ${id} exported successfully`);
   };
 
+  const handleStandardApplicabilityChange = (standardId: string, checked: boolean) => {
+    setApplicableStandards(prev => ({
+      ...prev,
+      [standardId]: checked
+    }));
+  };
+
+  const handleJustificationChange = (standardId: string, value: string) => {
+    setJustification(prev => ({
+      ...prev,
+      [standardId]: value
+    }));
+  };
+
+  const generateSOA = () => {
+    // In a real implementation, this would generate and possibly export a Statement of Applicability document
+    const selectedStandards = standards.filter(std => applicableStandards[std.id]);
+    
+    if (selectedStandards.length === 0) {
+      toast.error("Please select at least one applicable standard");
+      return;
+    }
+
+    // Display success message
+    toast.success("Statement of Applicability generated successfully");
+    setIsSOADialogOpen(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Standards & Regulations</h1>
         <div className="flex gap-2">
+          <Dialog open={isSOADialogOpen} onOpenChange={setIsSOADialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <ClipboardCheck className="h-4 w-4 mr-2" />
+                Statement of Applicability
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[800px] max-h-[80vh]">
+              <DialogHeader>
+                <DialogTitle>Statement of Applicability</DialogTitle>
+                <DialogDescription>
+                  Select which standards and frameworks are applicable to your organization and provide justification.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <ScrollArea className="h-[60vh] pr-4">
+                <Tabs defaultValue="framework" className="mt-4">
+                  <TabsList>
+                    <TabsTrigger value="framework">Frameworks</TabsTrigger>
+                    <TabsTrigger value="regulation">Regulations</TabsTrigger>
+                    <TabsTrigger value="policy">Policies</TabsTrigger>
+                    <TabsTrigger value="guideline">Guidelines</TabsTrigger>
+                  </TabsList>
+                  
+                  {(['framework', 'regulation', 'policy', 'guideline'] as StandardType[]).map(type => (
+                    <TabsContent key={type} value={type} className="space-y-6 mt-4">
+                      {standards.filter(s => s.type === type).length === 0 ? (
+                        <p className="text-muted-foreground text-center py-4">No {type}s available</p>
+                      ) : (
+                        standards
+                          .filter(s => s.type === type)
+                          .map(standard => (
+                            <div key={standard.id} className="border rounded-lg p-4 space-y-3">
+                              <div className="flex items-start gap-2">
+                                <Checkbox 
+                                  id={`std-${standard.id}`}
+                                  checked={applicableStandards[standard.id]}
+                                  onCheckedChange={(checked) => 
+                                    handleStandardApplicabilityChange(standard.id, checked as boolean)
+                                  }
+                                />
+                                <div className="grid gap-1.5 leading-none">
+                                  <Label htmlFor={`std-${standard.id}`} className="font-medium">
+                                    {standard.name} <span className="text-sm font-normal text-muted-foreground">v{standard.version}</span>
+                                  </Label>
+                                  <p className="text-sm text-muted-foreground">{standard.description}</p>
+                                </div>
+                              </div>
+                              
+                              {applicableStandards[standard.id] && (
+                                <div className="ml-6">
+                                  <Label htmlFor={`just-${standard.id}`} className="text-sm mb-1 block">
+                                    Justification
+                                  </Label>
+                                  <Input
+                                    id={`just-${standard.id}`}
+                                    value={justification[standard.id]}
+                                    onChange={(e) => handleJustificationChange(standard.id, e.target.value)}
+                                    placeholder="Explain why this standard is applicable to your organization"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          ))
+                      )}
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              </ScrollArea>
+              
+              <DialogFooter className="mt-4">
+                <Button variant="outline" onClick={() => setIsSOADialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={generateSOA}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Generate Statement
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
           <Button variant="outline" onClick={importStandard}>
             <FileUp className="h-4 w-4 mr-2" />
             Import
@@ -93,7 +221,7 @@ const Standards = () => {
       </div>
       
       {filteredStandards.length > 0 ? (
-        <ScrollArea className="h-[calc(100vh-420px)]">
+        <div className="pb-6">
           <div className="space-y-4">
             {filteredStandards.map((standard) => (
               <div key={standard.id} className="pb-4">
@@ -106,7 +234,7 @@ const Standards = () => {
               </div>
             ))}
           </div>
-        </ScrollArea>
+        </div>
       ) : (
         <div className="text-center py-12 border rounded-lg bg-background">
           <h3 className="text-lg font-medium">No standards found</h3>
@@ -121,28 +249,6 @@ const Standards = () => {
           </Button>
         </div>
       )}
-
-      <div className="bg-muted/30 p-6 rounded-lg border border-dashed border-muted-foreground/30">
-        <h2 className="text-lg font-medium mb-2">ISO 27001:2022 Details</h2>
-        <p className="text-muted-foreground mb-4">
-          ISO/IEC 27001:2022 is the latest version of the international standard for information security management systems (ISMS).
-          It includes controls across multiple domains to help organizations establish, implement, maintain, and continually improve an ISMS.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-          <div className="p-3 bg-background rounded border">
-            <h3 className="font-medium">A5-A8</h3>
-            <p className="text-sm text-muted-foreground">Security Policies, Organization, Human Resources, Asset Management</p>
-          </div>
-          <div className="p-3 bg-background rounded border">
-            <h3 className="font-medium">A9-A12</h3>
-            <p className="text-sm text-muted-foreground">Access Control, Cryptography, Physical Security, Operations</p>
-          </div>
-          <div className="p-3 bg-background rounded border">
-            <h3 className="font-medium">A13-A18</h3>
-            <p className="text-sm text-muted-foreground">Communications, System Acquisition, Supplier Relationships, Incident Management</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

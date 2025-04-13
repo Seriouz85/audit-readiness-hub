@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Standard } from "@/types";
@@ -19,25 +18,25 @@ export function StandardCard({ standard, requirementCount, onExport, horizontal 
         <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-lg line-clamp-1">{standard.name}</CardTitle>
-              <CardDescription>Version {standard.version}</CardDescription>
+              <CardTitle className="text-[0.75rem] line-clamp-1">{standard.name}</CardTitle>
+              <CardDescription className="text-[0.65rem]">Version {standard.version}</CardDescription>
             </div>
-            <div className="px-2 py-1 text-xs font-medium rounded bg-muted shrink-0 ml-2">
+            <div className="px-2 py-1 text-[0.65rem] font-medium rounded bg-muted shrink-0 ml-2">
               {standard.type}
             </div>
           </div>
         </CardHeader>
         <CardContent className="pb-2">
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-[0.75rem] text-muted-foreground mb-4">
             {standard.description}
           </p>
-          <div className="flex flex-wrap gap-4 text-sm">
+          <div className="flex flex-wrap gap-4 text-[0.75rem]">
             <div className="flex items-center gap-1">
-              <BookOpen size={16} className="text-muted-foreground" />
+              <BookOpen size={14} className="text-muted-foreground" />
               <span className="font-medium">{requirementCount} requirements</span>
             </div>
             <div className="flex items-center gap-1">
-              <FileText size={16} className="text-muted-foreground" />
+              <FileText size={14} className="text-muted-foreground" />
               <span className="line-clamp-1">{standard.category}</span>
             </div>
           </div>

@@ -7,37 +7,105 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Requirement, RequirementStatus } from "@/types";
 import { useState } from "react";
 import { toast } from "@/utils/toast";
+import { TagSelector } from "@/components/ui/tag-selector";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { FileText, Link, ExternalLink, Save, Plus, X } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 interface RequirementDetailProps {
   requirement: Requirement;
   onStatusChange?: (id: string, status: RequirementStatus) => void;
-  onEvidenceChange?: (id: string, evidence: string) => void;
+  onEvidenceChange?: (id: string, evidence: string, evidenceLinks?: string[]) => void;
   onNotesChange?: (id: string, notes: string) => void;
+  onTagsChange?: (id: string, tags: string[]) => void;
+}
+
+interface EvidenceLink {
+  url: string;
+  description: string;
 }
 
 export function RequirementDetail({ 
   requirement,
   onStatusChange,
   onEvidenceChange,
-  onNotesChange
+  onNotesChange,
+  onTagsChange
 }: RequirementDetailProps) {
+  const { t } = useTranslation();
   const [evidence, setEvidence] = useState(requirement.evidence || '');
   const [notes, setNotes] = useState(requirement.notes || '');
   const [status, setStatus] = useState<RequirementStatus>(requirement.status);
+  const [tags, setTags] = useState<string[]>(requirement.tags || []);
+  const [evidenceLinks, setEvidenceLinks] = useState<EvidenceLink[]>([
+    { url: '', description: '' }
+  ]);
+  const [hasChanges, setHasChanges] = useState(false);
 
   const handleStatusChange = (value: RequirementStatus) => {
     setStatus(value);
-    onStatusChange?.(requirement.id, value);
+    setHasChanges(true);
   };
 
-  const handleEvidenceSave = () => {
-    onEvidenceChange?.(requirement.id, evidence);
-    toast.success("Evidence updated successfully");
+  const handleEvidenceChange = (value: string) => {
+    setEvidence(value);
+    setHasChanges(true);
   };
 
-  const handleNotesSave = () => {
-    onNotesChange?.(requirement.id, notes);
-    toast.success("Notes updated successfully");
+  const handleNotesChange = (value: string) => {
+    setNotes(value);
+    setHasChanges(true);
+  };
+
+  const handleTagsChange = (newTags: string[]) => {
+    setTags(newTags);
+    setHasChanges(true);
+  };
+
+  const handleEvidenceLinkChange = (index: number, field: 'url' | 'description', value: string) => {
+    const newLinks = [...evidenceLinks];
+    newLinks[index][field] = value;
+    setEvidenceLinks(newLinks);
+    setHasChanges(true);
+  };
+
+  const addEvidenceLink = () => {
+    setEvidenceLinks([...evidenceLinks, { url: '', description: '' }]);
+  };
+
+  const removeEvidenceLink = (index: number) => {
+    const newLinks = evidenceLinks.filter((_, i) => i !== index);
+    setEvidenceLinks(newLinks);
+    setHasChanges(true);
+  };
+
+  const handleSaveAll = () => {
+    if (onStatusChange) {
+      onStatusChange(requirement.id, status);
+    }
+    
+    if (onEvidenceChange) {
+      // Format links as part of the evidence
+      const formattedLinks = evidenceLinks
+        .filter(link => link.url.trim())
+        .map(link => `[${link.description || link.url}](${link.url})`)
+        .join('\n');
+      
+      const fullEvidence = evidence + (formattedLinks ? `\n\nLinked Documents:\n${formattedLinks}` : '');
+      onEvidenceChange(requirement.id, fullEvidence);
+    }
+    
+    if (onNotesChange) {
+      onNotesChange(requirement.id, notes);
+    }
+    
+    if (onTagsChange) {
+      onTagsChange(requirement.id, tags);
+    }
+    
+    setHasChanges(false);
+    toast.success(t('requirement.toast.updated', "Requirement updated successfully"));
   };
 
   return (
@@ -48,9 +116,9 @@ export function RequirementDetail({
             <div className="text-xs font-medium text-muted-foreground mb-1">
               {requirement.code} | {requirement.section}
             </div>
-            <CardTitle>{requirement.name}</CardTitle>
+            <CardTitle>{t(`requirement.${requirement.id}.name`, requirement.name)}</CardTitle>
             <CardDescription>
-              {requirement.standardId}
+              {t(`standard.${requirement.standardId}.name`, requirement.standardId)}
             </CardDescription>
           </div>
           <StatusBadge status={status} />
@@ -58,63 +126,130 @@ export function RequirementDetail({
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
-          <h3 className="text-sm font-medium mb-2">Description</h3>
-          <p className="text-sm text-muted-foreground">{requirement.description}</p>
+          <h3 className="text-sm font-medium mb-2">{t('requirement.field.description', 'Description')}</h3>
+          <p className="text-sm text-muted-foreground">
+            {t(`requirement.${requirement.id}.description`, requirement.description)}
+          </p>
         </div>
         
         <div>
-          <h3 className="text-sm font-medium mb-2">Guidance</h3>
-          <p className="text-sm text-muted-foreground">{requirement.guidance}</p>
+          <h3 className="text-sm font-medium mb-2">{t('requirement.field.guidance', 'Guidance')}</h3>
+          <p className="text-sm text-muted-foreground">
+            {t(`requirement.${requirement.id}.guidance`, requirement.guidance)}
+          </p>
+        </div>
+        
+        <Separator />
+        
+        <div className="space-y-4">
+          <TagSelector 
+            selectedTags={tags} 
+            onChange={handleTagsChange} 
+            className="min-h-[40px]"
+          />
         </div>
         
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <Label htmlFor="status">Compliance Status</Label>
+            <Label htmlFor="status">{t('requirement.field.status', 'Compliance Status')}</Label>
           </div>
           <Select value={status} onValueChange={handleStatusChange}>
             <SelectTrigger>
-              <SelectValue placeholder="Select status" />
+              <SelectValue placeholder={t('requirement.status.placeholder', 'Select status')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="fulfilled">Fulfilled</SelectItem>
-              <SelectItem value="partially-fulfilled">Partially Fulfilled</SelectItem>
-              <SelectItem value="not-fulfilled">Not Fulfilled</SelectItem>
-              <SelectItem value="not-applicable">Not Applicable</SelectItem>
+              <SelectItem value="fulfilled">{t('assessment.status.fulfilled', 'Fulfilled')}</SelectItem>
+              <SelectItem value="partially-fulfilled">{t('assessment.status.partial', 'Partially Fulfilled')}</SelectItem>
+              <SelectItem value="not-fulfilled">{t('assessment.status.notFulfilled', 'Not Fulfilled')}</SelectItem>
+              <SelectItem value="not-applicable">{t('assessment.status.notApplicable', 'Not Applicable')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <Label htmlFor="evidence">Evidence</Label>
-            <Button variant="ghost" size="sm" onClick={handleEvidenceSave}>
-              Save
-            </Button>
+            <Label htmlFor="evidence">{t('requirement.field.evidence', 'Evidence')}</Label>
           </div>
           <Textarea
             id="evidence"
-            placeholder="Document evidence of compliance..."
+            placeholder={t('requirement.field.evidence.placeholder', 'Document evidence of compliance...')}
             value={evidence}
-            onChange={(e) => setEvidence(e.target.value)}
+            onChange={(e) => handleEvidenceChange(e.target.value)}
             rows={4}
           />
         </div>
         
         <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <Label htmlFor="notes">Notes</Label>
-            <Button variant="ghost" size="sm" onClick={handleNotesSave}>
-              Save
+          <Label className="flex items-center">
+            <FileText size={14} className="mr-1" />
+            {t('requirement.field.linkedDocuments', 'Linked Documents')}
+          </Label>
+          <div className="space-y-3">
+            {evidenceLinks.map((link, index) => (
+              <div key={index} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-start">
+                <div>
+                  <Label htmlFor={`link-url-${index}`} className="sr-only">Document URL</Label>
+                  <div className="flex">
+                    <div className="bg-muted p-2 border border-r-0 rounded-l-md">
+                      <Link size={16} className="text-muted-foreground" />
+                    </div>
+                    <Input 
+                      id={`link-url-${index}`}
+                      placeholder="Document URL"
+                      value={link.url}
+                      onChange={(e) => handleEvidenceLinkChange(index, 'url', e.target.value)}
+                      className="rounded-l-none" 
+                    />
+                  </div>
+                </div>
+                <Input 
+                  placeholder="Description (optional)"
+                  value={link.description}
+                  onChange={(e) => handleEvidenceLinkChange(index, 'description', e.target.value)}
+                />
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => removeEvidenceLink(index)}
+                  disabled={evidenceLinks.length === 1 && !link.url && !link.description}
+                >
+                  <X size={14} />
+                </Button>
+              </div>
+            ))}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={addEvidenceLink}
+              className="flex items-center"
+            >
+              <Plus size={14} className="mr-1" />
+              Add Document Link
             </Button>
+          </div>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <Label htmlFor="notes">{t('requirement.field.notes', 'Notes')}</Label>
           </div>
           <Textarea
             id="notes"
-            placeholder="Add notes or comments..."
+            placeholder={t('requirement.field.notes.placeholder', 'Add notes or comments...')}
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={(e) => handleNotesChange(e.target.value)}
             rows={4}
           />
         </div>
+        
+        <Button 
+          className="w-full" 
+          onClick={handleSaveAll} 
+          disabled={!hasChanges}
+        >
+          <Save size={16} className="mr-2" />
+          {t('requirement.button.saveAllChanges', 'Save All Changes')}
+        </Button>
       </CardContent>
       <CardFooter>
         <div className="flex w-full justify-between text-sm text-muted-foreground">

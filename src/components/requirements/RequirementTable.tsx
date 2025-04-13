@@ -1,7 +1,7 @@
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Requirement } from "@/types";
+import { TagList } from "@/components/ui/tag-selector";
 
 interface RequirementTableProps {
   requirements: Requirement[];
@@ -16,6 +16,7 @@ export function RequirementTable({ requirements, onSelectRequirement }: Requirem
           <TableRow>
             <TableHead>Code</TableHead>
             <TableHead className="w-[300px]">Requirement</TableHead>
+            <TableHead>Tags</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Last Assessment</TableHead>
             <TableHead>Responsible</TableHead>
@@ -32,6 +33,9 @@ export function RequirementTable({ requirements, onSelectRequirement }: Requirem
                 <TableCell className="font-medium">{req.code}</TableCell>
                 <TableCell>{req.name}</TableCell>
                 <TableCell>
+                  <TagList tagIds={req.tags} />
+                </TableCell>
+                <TableCell>
                   <StatusBadge status={req.status} />
                 </TableCell>
                 <TableCell>
@@ -44,7 +48,7 @@ export function RequirementTable({ requirements, onSelectRequirement }: Requirem
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={5} className="h-24 text-center">
+              <TableCell colSpan={6} className="h-24 text-center">
                 No requirements found.
               </TableCell>
             </TableRow>

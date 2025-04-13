@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -9,10 +8,15 @@ import {
   FileText, 
   Settings, 
   Menu, 
-  X 
+  X,
+  Building,
+  Laptop
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { NotificationsMenu } from '@/components/NotificationsMenu';
+import { useTranslation } from '@/lib/i18n';
 
 type NavItemProps = {
   to: string;
@@ -45,18 +49,21 @@ type AppLayoutProps = {
 const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const { t } = useTranslation();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   const navItems = [
-    { to: '/', icon: <BarChart3 size={20} />, label: 'Dashboard' },
-    { to: '/standards', icon: <Shield size={20} />, label: 'Standards' },
-    { to: '/requirements', icon: <BookOpen size={20} />, label: 'Requirements' },
-    { to: '/assessments', icon: <CheckSquare size={20} />, label: 'Assessments' },
-    { to: '/reports', icon: <FileText size={20} />, label: 'Reports' },
-    { to: '/settings', icon: <Settings size={20} />, label: 'Settings' },
+    { to: '/', icon: <BarChart3 size={20} />, label: t('nav.dashboard') },
+    { to: '/standards', icon: <Shield size={20} />, label: t('nav.standards') },
+    { to: '/requirements', icon: <BookOpen size={20} />, label: t('nav.requirements') },
+    { to: '/assessments', icon: <CheckSquare size={20} />, label: t('nav.assessments') },
+    { to: '/applications', icon: <Laptop size={20} />, label: t('nav.applications') },
+    { to: '/suppliers', icon: <Building size={20} />, label: t('nav.suppliers') },
+    { to: '/reports', icon: <FileText size={20} />, label: t('nav.reports') },
+    { to: '/settings', icon: <Settings size={20} />, label: t('nav.settings') },
   ];
 
   return (
@@ -73,9 +80,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       {/* Sidebar - Desktop */}
       <aside className="hidden md:flex w-64 flex-col bg-sidebar overflow-y-auto">
-        <div className="p-4 pb-2 flex items-center border-b border-sidebar-border">
-          <Shield className="text-accent mr-2" size={24} />
-          <h1 className="text-sidebar-foreground text-xl font-bold">AuditReady</h1>
+        <div className="p-4 pb-2 flex items-center justify-between border-b border-sidebar-border">
+          <div className="flex items-center">
+            <Shield className="text-accent mr-2" size={24} />
+            <h1 className="text-sidebar-foreground text-xl font-bold">AuditReady</h1>
+          </div>
         </div>
         
         <nav className="flex-1 p-4">
@@ -105,9 +114,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="p-4 pb-2 flex items-center border-b border-sidebar-border">
-          <Shield className="text-accent mr-2" size={24} />
-          <h1 className="text-sidebar-foreground text-xl font-bold">AuditReady</h1>
+        <div className="p-4 pb-2 flex items-center justify-between border-b border-sidebar-border">
+          <div className="flex items-center">
+            <Shield className="text-accent mr-2" size={24} />
+            <h1 className="text-sidebar-foreground text-xl font-bold">AuditReady</h1>
+          </div>
         </div>
         
         <nav className="flex-1 p-4">
@@ -132,7 +143,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-6">
+        {/* Top navigation bar - visible on all screen sizes */}
+        <div className="flex justify-end items-center p-3 border-b">
+          <div className="flex items-center gap-2">
+            <NotificationsMenu />
+            <LanguageSelector />
+          </div>
+        </div>
+        <div className="flex-1 p-6 overflow-y-auto">
           {children}
         </div>
       </main>
