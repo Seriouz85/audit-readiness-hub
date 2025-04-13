@@ -15,7 +15,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter basename="/audit-readiness-hub">
           <Routes>
             <Route path="/*" element={<Index />} />
             <Route path="*" element={<NotFound />} />
