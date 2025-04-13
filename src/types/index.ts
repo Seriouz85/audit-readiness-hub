@@ -46,7 +46,7 @@ export interface Assessment {
   startDate: string;
   endDate?: string;
   assessorName: string;
-  assessorId: string;
+  assessorId: string; // Added this field to match the mock data
   createdAt: string;
   updatedAt: string;
 }
