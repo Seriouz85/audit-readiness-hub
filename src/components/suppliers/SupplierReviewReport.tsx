@@ -121,32 +121,24 @@ export const SupplierReviewReport = ({
     selectedStandardIds.includes(std.id)
   );
   
-  // Fix the useEffect to properly handle standard selection changes
+  // Enhanced requirements with status
   useEffect(() => {
-    console.log('SupplierReviewReport: Processing standards with IDs:', selectedStandardIds);
-    
-    // Get ALL requirements for selected standards without additional filtering
-    const enhanced = requirements
-      .filter(req => {
-        // Is this requirement part of a selected standard? This is the only filter we need
-        const inSelectedStandard = selectedStandardIds.includes(req.standardId);
-        if (!inSelectedStandard) return false;
-        
-        // Log that we're including this requirement
-        console.log(`Including requirement ${req.id} (${req.name}) from standard ${req.standardId}`);
-        return true;
-      })
-      .map(req => ({
+    const enhanced = requirements.map(req => {
+      const relatedRequirement = supplier.associatedStandards
+        .find(s => s.standardId === req.standardId)?.requirementIds
+        .includes(req.id);
+      
+      return {
         ...req,
-        supplierStatus: 'not-fulfilled' as RequirementStatus,
+        supplierStatus: relatedRequirement ? 'fulfilled' : 'not-fulfilled' as RequirementStatus,
         supplierNotes: '',
-        supplierEvidence: ''
-      }));
+        supplierEvidence: '',
+      };
+    });
     
-    console.log(`Found ${enhanced.length} requirements for selected standards`);
-    if (enhanced.length === 0) {
-      console.warn('No requirements found for selected standards! Check filter criteria:', {
-        selectedStandardIds,
+    // Debug
+    if (enhanced.length > 0) {
+      console.log({
         standardIds: standards.map(s => s.id),
         requirementsCount: requirements.length,
         requirementsForStandards: requirements.filter(req => selectedStandardIds.includes(req.standardId)).length
@@ -154,7 +146,7 @@ export const SupplierReviewReport = ({
     }
     
     setEnhancedRequirements(enhanced);
-  }, [selectedStandardIds, requirements]);
+  }, [selectedStandardIds, requirements, standards, supplier.associatedStandards]);
   
   // Get filtered requirements based on active standard
   const filteredRequirements = activeStandardId 

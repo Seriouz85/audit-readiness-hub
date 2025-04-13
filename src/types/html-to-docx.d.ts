@@ -8,7 +8,7 @@ declare module 'html-to-docx' {
     footer?: boolean;
     pageNumber?: boolean;
     title?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   function HTMLtoDOCX(

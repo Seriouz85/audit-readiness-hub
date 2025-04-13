@@ -48,12 +48,20 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 const Assessments = () => {
-  const [searchParams] = useSearchParams();
-  const standardIdFromUrl = searchParams.get("standard");
-  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [assessments, setAssessments] = useState<Assessment[]>(initialAssessments);
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [isNewAssessmentOpen, setIsNewAssessmentOpen] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const { t } = useTranslation();
+  
+  // Get standardId from URL if present
+  const urlParams = new URLSearchParams(window.location.search);
+  const standardIdFromUrl = urlParams.get('standardId');
+  
+  // Filter assessments if a standard is specified in the URL
+  const filteredAssessments = standardIdFromUrl 
+    ? assessments.filter(a => a.standardIds.includes(standardIdFromUrl))
+    : assessments;
   
   // Form state for new assessment
   const [newAssessment, setNewAssessment] = useState({
@@ -63,10 +71,6 @@ const Assessments = () => {
     assessorName: ''
   });
 
-  const filteredAssessments = standardIdFromUrl
-    ? assessments.filter(assessment => assessment.standardIds.includes(standardIdFromUrl))
-    : assessments;
-  
   const getStandardName = (id: string): string => {
     const standard = standards.find(s => s.id === id);
     return standard ? standard.name : id;
@@ -77,10 +81,6 @@ const Assessments = () => {
     if (ids.length === 1) return getStandardName(ids[0]);
     return `${getStandardName(ids[0])} +${ids.length - 1} more`;
   };
-
-  useEffect(() => {
-    setAssessments(initialAssessments);
-  }, []);
 
   useEffect(() => {
     if (standardIdFromUrl) {
@@ -236,8 +236,6 @@ const Assessments = () => {
       />
     );
   }
-
-  const { t } = useTranslation();
 
   return (
     <div className="container py-6">
