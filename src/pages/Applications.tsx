@@ -4,13 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  Plus, Search, Filter, Mail, Laptop, User, 
+  Plus, Search, Filter, Mail, Laptop, 
   X, Check, AlertTriangle, FileEdit, Trash2, Shield,
-  Clock, Calendar, ArrowUpDown
 } from "lucide-react";
-import { applications as initialApplications, internalUsers, standards, requirements } from "@/data/mockData";
+import { applications as initialApplications } from "@/data/mockData";
 import { InternalUser, Application, Requirement, Standard } from "@/types";
-import { toast } from "@/utils/toast";
 import {
   Table,
   TableBody,
@@ -84,12 +82,17 @@ const Applications = () => {
   // Requirements selection state
   const [selectedRequirements, setSelectedRequirements] = useState<Record<string, boolean>>({});
   
+  // Placeholder data until we confirm where these come from
+  const internalUsers: InternalUser[] = []; 
+  const requirements: Requirement[] = [];
+  const standards: Standard[] = [];
+
   // Get filtered applications
   const filteredApplications = applications.filter((application) => {
     const matchesSearch = 
       application.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       application.organizationNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      application.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (application.category && application.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
       application.contact.name.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || application.status === statusFilter;
@@ -139,14 +142,14 @@ const Applications = () => {
     if (!newApplication.name || !newApplication.organizationNumber || 
         !newApplication.contactName || !newApplication.contactEmail || 
         !newApplication.internalResponsibleId) {
-      toast.error("Please fill in all required fields");
+      console.error("Please fill in all required fields");
       return;
     }
 
     // Create new application
     const selectedResponsible = internalUsers.find(user => user.id === newApplication.internalResponsibleId);
     if (!selectedResponsible) {
-      toast.error("Please select a valid internal responsible person");
+      console.error("Please select a valid internal responsible person");
       return;
     }
 
@@ -203,7 +206,7 @@ const Applications = () => {
     });
     
     setIsAddApplicationOpen(false);
-    toast.success("Application added successfully");
+    console.log("Application added successfully");
   };
 
   const handleViewApplication = (application: Application) => {
@@ -248,43 +251,47 @@ const Applications = () => {
     const selectedReqIds = Object.entries(selectedRequirements)
       .filter(([_, isSelected]) => isSelected)
       .map(([reqId]) => reqId);
-      
-    const updatedApplication = { 
+    
+    // Update the application with the new associated requirements
+    const updatedApplication = {
       ...selectedApplication,
-      associatedRequirements: selectedReqIds,
-      updatedAt: new Date().toISOString()
+      associatedRequirements: selectedReqIds
     };
     
-    // Update application in the list
-    setApplications(applications.map(a => 
-      a.id === updatedApplication.id ? updatedApplication : a
-    ));
+    // Update the application in the main list
+    setApplications(prevApps => 
+      prevApps.map(app => 
+        app.id === selectedApplication.id ? updatedApplication : app
+      )
+    );
     
+    // Update the selected application state as well
     setSelectedApplication(updatedApplication);
+    
+    // Close the dialog
     setIsRequirementsOpen(false);
-    toast.success("Requirements updated successfully");
+    console.log("Requirements updated successfully");
   };
 
   const handleScheduleReview = () => {
     if (!selectedApplication) return;
-
-    const nextYear = new Date();
-    nextYear.setFullYear(nextYear.getFullYear() + 1);
     
-    const updatedApplication = { 
+    const nextReviewDate = new Date();
+    nextReviewDate.setMonth(nextReviewDate.getMonth() + 6); // Schedule review for 6 months later
+    
+    const updatedApplication = {
       ...selectedApplication,
-      lastReviewDate: new Date().toISOString(),
-      nextReviewDate: nextYear.toISOString(),
-      updatedAt: new Date().toISOString()
+      nextReviewDate: nextReviewDate.toISOString(),
+      status: 'under-review' as Application['status']
     };
-    
-    // Update application in the list
-    setApplications(applications.map(a => 
-      a.id === updatedApplication.id ? updatedApplication : a
-    ));
-    
+
+    setApplications(prevApps => 
+      prevApps.map(app => 
+        app.id === selectedApplication.id ? updatedApplication : app
+      )
+    );
     setSelectedApplication(updatedApplication);
-    toast.success("Review scheduled successfully");
+    console.log(`Review scheduled`);
   };
 
   const getStatusBadge = (status: Application['status']) => {
@@ -294,7 +301,7 @@ const Applications = () => {
       case 'inactive':
         return <Badge variant="outline" className="text-gray-500">Inactive</Badge>;
       case 'under-review':
-        return <Badge variant="secondary" className="bg-amber-500">Under Review</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-500">Under Review</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
@@ -302,35 +309,39 @@ const Applications = () => {
 
   const getCriticalityBadge = (criticality: Application['criticality']) => {
     switch (criticality) {
+      case 'low':
+        return <Badge variant="outline">Low</Badge>;
+      case 'medium':
+        return <Badge variant="secondary" className="bg-blue-500">Medium</Badge>;
+      case 'high':
+        return <Badge variant="destructive" className="bg-orange-500">High</Badge>;
       case 'critical':
         return <Badge variant="destructive">Critical</Badge>;
-      case 'high':
-        return <Badge variant="default" className="bg-orange-500">High</Badge>;
-      case 'medium':
-        return <Badge variant="secondary" className="bg-yellow-500">Medium</Badge>;
-      case 'low':
-        return <Badge variant="outline" className="text-green-500 border-green-500">Low</Badge>;
       default:
         return <Badge>{criticality}</Badge>;
     }
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Not set';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    if (!dateString) return 'N/A';
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch (e) {
+      return 'Invalid Date';
+    }
   };
 
   const isReviewDueSoon = (dateString?: string) => {
     if (!dateString) return false;
-    const nextReview = new Date(dateString);
-    const today = new Date();
-    const threeMonthsFromNow = new Date();
-    threeMonthsFromNow.setMonth(today.getMonth() + 3);
-    return nextReview <= threeMonthsFromNow;
+    try {
+      const nextReview = new Date(dateString);
+      const today = new Date();
+      const oneMonthFromNow = new Date();
+      oneMonthFromNow.setMonth(today.getMonth() + 1);
+      return nextReview <= oneMonthFromNow;
+    } catch (e) {
+      return false;
+    }
   };
 
   // If an application is selected, show detailed view
@@ -352,7 +363,6 @@ const Applications = () => {
               Manage Requirements
             </Button>
             <Button onClick={handleScheduleReview}>
-              <Calendar className="mr-2 h-4 w-4" />
               Schedule Review
             </Button>
           </div>
@@ -394,13 +404,11 @@ const Applications = () => {
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground mb-1">Review Schedule</h3>
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className={isReviewDueSoon(selectedApplication.nextReviewDate) ? "text-red-500 font-medium" : ""}>
                       Next: {formatDate(selectedApplication.nextReviewDate)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
                     <span>Last: {formatDate(selectedApplication.lastReviewDate)}</span>
                   </div>
                 </div>
@@ -613,7 +621,6 @@ const Applications = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold flex items-center">
-              <Calendar className="h-5 w-5 mr-2 text-blue-500" />
               <span>{applicationStats.reviewDue}</span>
               <span className="text-base ml-2 font-normal text-muted-foreground">Due Soon</span>
             </div>
@@ -655,7 +662,7 @@ const Applications = () => {
               onValueChange={(value) => setCriticalityFilter(value as Application['criticality'] | "all")}
             >
               <SelectTrigger className="w-full sm:w-[180px]">
-                <ArrowUpDown className="h-4 w-4 mr-2" />
+                <Filter className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Filter by criticality" />
               </SelectTrigger>
               <SelectContent>
