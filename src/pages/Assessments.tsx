@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { assessments as initialAssessments, standards } from "@/data/mockData";
-import { BarChart, Calendar, CheckCircle2, Clock, Plus, User, Check, ChevronsUpDown } from "lucide-react";
+import { BarChart, CheckCircle2, Clock, Plus, User, Check, ChevronsUpDown } from "lucide-react";
 import { AssessmentDetail } from "@/components/assessments/AssessmentDetail";
 import { Assessment } from "@/types";
 import { toast } from "@/utils/toast";
