@@ -10,6 +10,18 @@ import { User } from '@/types/audit';
 export const authService = {
   async login(email: string, password: string): Promise<User> {
     try {
+      // Demo credentials bypass
+      if (email === 'demo@auditready.com' && password === 'demo123') {
+        return {
+          id: 'demo-user',
+          email: 'demo@auditready.com',
+          displayName: 'Demo User',
+          role: 'admin',
+          lastLogin: new Date()
+        };
+      }
+
+      // Real authentication for other users
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
       

@@ -56,14 +56,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   };
 
   const navItems = [
-    { to: '/', icon: <BarChart3 size={20} />, label: t('nav.dashboard') },
-    { to: '/standards', icon: <Shield size={20} />, label: t('nav.standards') },
-    { to: '/requirements', icon: <BookOpen size={20} />, label: t('nav.requirements') },
-    { to: '/assessments', icon: <CheckSquare size={20} />, label: t('nav.assessments') },
-    { to: '/applications', icon: <Laptop size={20} />, label: t('nav.applications') },
-    { to: '/suppliers', icon: <Building size={20} />, label: t('nav.suppliers') },
-    { to: '/reports', icon: <FileText size={20} />, label: t('nav.reports') },
-    { to: '/settings', icon: <Settings size={20} />, label: t('nav.settings') },
+    { to: '/dashboard', icon: <BarChart3 size={20} />, label: t('nav.dashboard') },
+    { to: '/dashboard/standards', icon: <Shield size={20} />, label: t('nav.standards') },
+    { to: '/dashboard/requirements', icon: <BookOpen size={20} />, label: t('nav.requirements') },
+    { to: '/dashboard/assessments', icon: <CheckSquare size={20} />, label: t('nav.assessments') },
+    { to: '/dashboard/applications', icon: <Laptop size={20} />, label: t('nav.applications') },
+    { to: '/dashboard/suppliers', icon: <Building size={20} />, label: t('nav.suppliers') },
+    { to: '/dashboard/reports', icon: <FileText size={20} />, label: t('nav.reports') },
+    { to: '/dashboard/settings', icon: <Settings size={20} />, label: t('nav.settings') },
   ];
 
   return (
