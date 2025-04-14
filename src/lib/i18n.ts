@@ -32,6 +32,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'language.norwegian': 'Norwegian',
     'language.danish': 'Danish',
     'language.finnish': 'Finnish',
+    'language.selector': 'Change language',
     
     // Navigation
     'nav.dashboard': 'Dashboard',
@@ -230,6 +231,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'language.norwegian': 'Norska',
     'language.danish': 'Danska',
     'language.finnish': 'Finska',
+    'language.selector': 'Byt språk',
     
     // Navigation
     'nav.dashboard': 'Instrumentpanel',
@@ -428,6 +430,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'language.norwegian': 'Norsk',
     'language.danish': 'Dansk',
     'language.finnish': 'Finsk',
+    'language.selector': 'Bytt språk',
     
     // Navigation
     'nav.dashboard': 'Dashboard',
@@ -585,6 +588,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'language.norwegian': 'Norsk',
     'language.danish': 'Dansk',
     'language.finnish': 'Finsk',
+    'language.selector': 'Byt språk',
     
     // Navigation
     'nav.dashboard': 'Dashboard',
@@ -742,6 +746,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'language.norwegian': 'Norja',
     'language.danish': 'Tanska',
     'language.finnish': 'Suomi',
+    'language.selector': 'Vaihda kieli',
     
     // Navigation
     'nav.dashboard': 'Kojelauta',
