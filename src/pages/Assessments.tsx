@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 // import { Progress } from "@/components/ui/progress"; 
 import { assessments as initialAssessments, standards } from "@/data/mockData";
 // Removed unused BarChart, Calendar, CheckCircle2, User icons
-import { Clock, Plus, Check, ChevronsUpDown } from "lucide-react"; 
+import { Plus, Check, ChevronsUpDown } from "lucide-react"; 
 import { AssessmentDetail } from "@/components/assessments/AssessmentDetail";
 import { Assessment } from "@/types";
 import { toast } from "@/utils/toast";
