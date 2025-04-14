@@ -56,14 +56,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   };
 
   const navItems = [
-    { to: '/', icon: <BarChart3 size={20} />, label: t('nav.dashboard') },
-    { to: '/standards', icon: <Shield size={20} />, label: t('nav.standards') },
-    { to: '/requirements', icon: <BookOpen size={20} />, label: t('nav.requirements') },
-    { to: '/assessments', icon: <CheckSquare size={20} />, label: t('nav.assessments') },
-    { to: '/applications', icon: <Laptop size={20} />, label: t('nav.applications') },
-    { to: '/suppliers', icon: <Building size={20} />, label: t('nav.suppliers') },
-    { to: '/reports', icon: <FileText size={20} />, label: t('nav.reports') },
-    { to: '/settings', icon: <Settings size={20} />, label: t('nav.settings') },
+    { to: '/app', icon: <BarChart3 size={20} />, label: t('nav.dashboard') },
+    { to: '/app/standards', icon: <Shield size={20} />, label: t('nav.standards') },
+    { to: '/app/requirements', icon: <BookOpen size={20} />, label: t('nav.requirements') },
+    { to: '/app/assessments', icon: <CheckSquare size={20} />, label: t('nav.assessments') },
+    { to: '/app/applications', icon: <Laptop size={20} />, label: t('nav.applications') },
+    { to: '/app/suppliers', icon: <Building size={20} />, label: t('nav.suppliers') },
+    { to: '/app/reports', icon: <FileText size={20} />, label: t('nav.reports') },
+    { to: '/app/settings', icon: <Settings size={20} />, label: t('nav.settings') },
   ];
 
   return (
@@ -94,7 +94,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               to={item.to}
               icon={item.icon}
               label={item.label}
-              isActive={location.pathname === item.to}
+              isActive={location.pathname === item.to || (item.to === '/app' && location.pathname === '/app/')}
             />
           ))}
         </nav>
@@ -128,7 +128,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               to={item.to}
               icon={item.icon}
               label={item.label}
-              isActive={location.pathname === item.to}
+              isActive={location.pathname === item.to || (item.to === '/app' && location.pathname === '/app/')}
             />
           ))}
         </nav>

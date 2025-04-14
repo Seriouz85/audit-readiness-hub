@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, UserCredential } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDdvek8oC5JG7CfC5QIeLBJsUv__7_x46M",
@@ -15,4 +15,20 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
-export const auth = getAuth(app); 
+export const auth = getAuth(app);
+
+// Demo credentials for login purposes
+export const DEMO_EMAIL = "demo@auditready.com";
+export const DEMO_PASSWORD = "Demo123!";
+export const ADMIN_EMAIL = "admin@auditready.com";
+export const ADMIN_PASSWORD = "Admin123!";
+
+// Function to create an admin user if needed
+export const createAdminUser = async (): Promise<UserCredential> => {
+  try {
+    return await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
+  } catch (error: any) {
+    // If user already exists, this will throw an error with code 'auth/email-already-in-use'
+    throw error;
+  }
+}; 
