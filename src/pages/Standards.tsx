@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StandardCard } from "@/components/standards/StandardCard";
 import { standards, requirements } from "@/data/mockData";
-import { StandardType, Standard } from "@/types";
+import { StandardType } from "@/types";
 import { Plus, Search, Filter, FileUp, ClipboardCheck, Download } from "lucide-react";
 import { toast } from "@/utils/toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -24,7 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const Standards = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<StandardType | "all">("all");
-  const [visibleStandards, setVisibleStandards] = useState(standards);
+  const [visibleStandards] = useState(standards);
   const [isSOADialogOpen, setIsSOADialogOpen] = useState(false);
   const [applicableStandards, setApplicableStandards] = useState<Record<string, boolean>>(
     standards.reduce((acc, standard) => ({...acc, [standard.id]: false}), {})
