@@ -154,7 +154,7 @@ export const SupplierReviewReport = ({
       setActiveStandardId(selectedStandardIds[0]);
     }
 
-  }, [selectedStandardIds, requirements, supplier.associatedStandards]); // Removed 'standards' as it wasn't used
+  }, [selectedStandardIds, requirements, supplier.associatedStandards, activeStandardId]);
   
   // Get filtered requirements based on active standard
   const filteredRequirements = activeStandardId 
