@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  Plus, Search, Filter, Mail, Laptop, 
+  Plus, Search, Filter, Mail, Laptop,
   X, Check, AlertTriangle, FileEdit, Trash2, Shield,
 } from "lucide-react";
 import { applications as initialApplications } from "@/data/mockData";
