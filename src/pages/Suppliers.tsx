@@ -53,6 +53,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { SupplierReviewReport } from "@/components/suppliers/SupplierReviewReport";
+import { cn } from "@/lib/utils";
 
 // Define the EmailData interface
 interface EmailData {
@@ -263,6 +264,18 @@ const Suppliers = () => {
       });
       
       setSelectedRequirements(newSelections);
+      toast.success(`Added ${standardRequirements.length} requirements from ${getStandardName(standardId)}`);
+    } else {
+      // Remove all requirements for this standard
+      const standardRequirements = requirements.filter(req => req.standardId === standardId);
+      const newSelections = { ...selectedRequirements };
+      
+      standardRequirements.forEach(req => {
+        delete newSelections[req.id];
+      });
+      
+      setSelectedRequirements(newSelections);
+      toast.info(`Removed requirements from ${getStandardName(standardId)}`);
     }
 
     // Show live preview for selected standards
@@ -278,6 +291,20 @@ const Suppliers = () => {
       ...prev,
       [requirementId]: checked
     }));
+    
+    // Show live preview for selected standards
+    setIsReportPreviewVisible(true);
+    
+    // Calculate and show immediate feedback
+    const standardId = requirements.find(req => req.id === requirementId)?.standardId;
+    if (standardId) {
+      const standardRequirements = requirements.filter(req => req.standardId === standardId);
+      const selectedCount = standardRequirements.filter(req => selectedRequirements[req.id]).length;
+      const totalCount = standardRequirements.length;
+      const percentage = Math.round((selectedCount / totalCount) * 100);
+      
+      toast.info(`Selected ${selectedCount} of ${totalCount} requirements (${percentage}%) for ${getStandardName(standardId)}`);
+    }
   };
 
   const handleSaveStandards = () => {
@@ -850,21 +877,38 @@ const Suppliers = () => {
                               {requirements
                                 .filter(req => req.standardId === standardId)
                                 .map(requirement => (
-                                  <div key={requirement.id} className="flex items-start gap-2 border p-3 rounded-md hover:bg-muted/30 transition-colors">
+                                  <div 
+                                    key={requirement.id} 
+                                    className={cn(
+                                      "flex items-start gap-2 border p-3 rounded-md transition-colors",
+                                      selectedRequirements[requirement.id] 
+                                        ? "bg-primary/5 border-primary/20" 
+                                        : "hover:bg-muted/30"
+                                    )}
+                                  >
                                     <Checkbox 
                                       id={`req-${requirement.id}`}
                                       checked={selectedRequirements[requirement.id] || false}
                                       onCheckedChange={(checked) => {
                                         handleRequirementChange(requirement.id, !!checked);
-                                        // Also show the live preview
-                                        setIsReportPreviewVisible(true);
                                       }}
                                     />
                                     <div className="grid gap-1.5 leading-none">
-                                      <Label htmlFor={`req-${requirement.id}`} className="font-medium">
+                                      <Label 
+                                        htmlFor={`req-${requirement.id}`} 
+                                        className={cn(
+                                          "font-medium",
+                                          selectedRequirements[requirement.id] && "text-primary"
+                                        )}
+                                      >
                                         {requirement.section} {requirement.name}
                                       </Label>
                                       <p className="text-sm text-muted-foreground">{requirement.description}</p>
+                                      {requirement.guidance && (
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                          <span className="font-medium">Guidance:</span> {requirement.guidance}
+                                        </p>
+                                      )}
                                     </div>
                                   </div>
                                 ))}

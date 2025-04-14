@@ -58,6 +58,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface SupplierReviewReportProps {
   supplier: Supplier;
@@ -181,12 +182,40 @@ export const SupplierReviewReport = ({
     return acc;
   }, {} as Record<string, RequirementWithStatus[]>);
 
+  const calculateScore = (requirements: RequirementWithStatus[]) => {
+    const total = requirements.length;
+    const fulfilledCount = requirements.filter(req => req.supplierStatus === 'fulfilled').length;
+    const partialCount = requirements.filter(req => req.supplierStatus === 'partially-fulfilled').length;
+    const notApplicableCount = requirements.filter(req => req.supplierStatus === 'not-applicable').length;
+    
+    const relevantTotal = total - notApplicableCount;
+    if (relevantTotal === 0) return 0;
+    
+    return Math.round((fulfilledCount + partialCount * 0.5) / relevantTotal * 100);
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 50) return 'bg-amber-500';
+    return 'bg-red-500';
+  };
+
+  const getScoreLabel = (score: number) => {
+    if (score >= 80) return 'High Compliance';
+    if (score >= 50) return 'Moderate Compliance';
+    return 'Low Compliance';
+  };
+
   const handleRequirementStatusChange = (reqId: string, status: RequirementStatus) => {
     setEnhancedRequirements(prev => 
       prev.map(req => 
         req.id === reqId ? { ...req, supplierStatus: status } : req
       )
     );
+    
+    // Show immediate feedback
+    const score = calculateScore(enhancedRequirements);
+    toast.info(`Compliance score updated: ${score}% - ${getScoreLabel(score)}`);
   };
 
   const handleRequirementNotesChange = (reqId: string, notes: string) => {
@@ -207,107 +236,34 @@ export const SupplierReviewReport = ({
 
   const handlePrintToPDF = useReactToPrint({
     content: () => reportRef.current,
-    documentTitle: `${supplier.name} - Compliance Assessment`,
     onBeforeGetContent: () => {
       toast.info('Preparing document for printing...');
-      
-      const style = document.createElement('style');
-      style.id = 'print-style';
-      style.innerHTML = `
-        @media print {
-          @page {
-            size: A4;
-            margin: 15mm 10mm 15mm 10mm;
-          }
-          
-          body, html {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-          }
-          
-          body * {
-            visibility: hidden;
-          }
-          
-          .supplier-report-content, 
-          .supplier-report-content * {
-            visibility: visible;
-          }
-          
-          .supplier-report-content {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            padding: 10mm !important;
-            box-shadow: none !important;
-            border: none !important;
-          }
-          
-          .print-header {
-            display: block !important;
-            position: fixed;
-            top: 5mm;
-            width: 100%;
-          }
-          
-          .print-footer {
-            display: block !important;
-            position: fixed;
-            bottom: 5mm;
-            width: 100%;
-          }
-          
-          button, .no-print, .ui-control {
-            display: none !important;
-          }
-          
-          h1, h2, h3 {
-            page-break-after: avoid;
-          }
-          
-          .break-inside-avoid {
-            page-break-inside: avoid;
-          }
-          
-          .page-break-before {
-            page-break-before: always;
-          }
-          
-          table { 
-            page-break-inside: auto;
-            border-collapse: collapse;
-          }
-          
-          tr { 
-            page-break-inside: avoid; 
-            page-break-after: auto;
-          }
-          
-          thead { 
-            display: table-header-group;
-          }
-          
-          tfoot { 
-            display: table-footer-group;
-          }
-        }
-      `;
-      document.head.appendChild(style);
-      
       return Promise.resolve();
     },
     onAfterPrint: () => {
-      const style = document.getElementById('print-style');
-      if (style) document.head.removeChild(style);
-      
       toast.success('Document ready for save');
     },
+    pageStyle: `
+      @page {
+        size: A4;
+        margin: 20mm;
+      }
+      @media print {
+        body {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .no-print {
+          display: none;
+        }
+        .print-only {
+          display: block;
+        }
+        .page-break {
+          page-break-after: always;
+        }
+      }
+    `
   });
 
   useEffect(() => {
@@ -401,19 +357,36 @@ export const SupplierReviewReport = ({
           ref={reportRef} 
           className="supplier-report-content bg-white dark:bg-slate-900 max-w-4xl mx-auto p-8 shadow-sm border rounded-md print:shadow-none print:border-none print:p-6"
         >
-          <div className="flex justify-between items-center border-b-2 border-primary pb-4 mb-6 print:mb-8">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary text-white p-2 rounded-md">
-                <ShieldCheck className="h-8 w-8" />
-              </div>
+          <div className="mb-8 border-b pb-6">
+            <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-2xl font-bold">{t("supplier.securityReview")}</h1>
-                <p className="text-muted-foreground">{format(new Date(), "PPP")}</p>
+                <h1 className="text-2xl font-bold mb-2">Supplier Security Assessment</h1>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <p>Supplier: {supplier.name}</p>
+                  <p>Generated: {format(new Date(), 'MMMM d, yyyy')}</p>
+                  <p>Generated by: {internalUser.name} ({internalUser.department || 'Security Team'})</p>
+                </div>
               </div>
-            </div>
-            <div className="text-right">
-              <p className="font-semibold">{supplier?.name}</p>
-              <p className="text-sm text-muted-foreground">{supplier?.organizationNumber}</p>
+              <div className="flex gap-2 no-print">
+                <Button 
+                  variant="outline" 
+                  onClick={handlePrintToPDF}
+                  className="gap-2"
+                >
+                  <Printer className="h-4 w-4" />
+                  Generate PDF
+                </Button>
+                {onSend && (
+                  <Button 
+                    variant="default"
+                    onClick={() => setShowEmailDialog(true)}
+                    className="gap-2"
+                  >
+                    <Mail className="h-4 w-4" />
+                    Send to Supplier
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
           
@@ -432,281 +405,156 @@ export const SupplierReviewReport = ({
           </div>
           
           <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4 print:text-lg">Compliance Summary</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white border rounded-lg p-6 flex items-center justify-between shadow-sm print:border-gray-300 print:shadow-none print:p-4">
-                <div>
-                  <h3 className="text-lg font-semibold print:text-base">{t("assessment.complianceScore")}</h3>
-                  <p className="text-sm text-muted-foreground">{t("assessment.overallCompliance")}</p>
+            <h2 className="text-xl font-bold mb-4">Compliance Score</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-card rounded-lg p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium">Overall Compliance</h3>
+                  <Badge variant="outline" className={cn(
+                    "text-sm",
+                    score >= 80 ? "bg-green-50 text-green-700 border-green-200" :
+                    score >= 50 ? "bg-amber-50 text-amber-700 border-amber-200" :
+                    "bg-red-50 text-red-700 border-red-200"
+                  )}>
+                    {getScoreLabel(score)}
+                  </Badge>
                 </div>
-                <div className="flex flex-col items-center">
-                  <div className="relative h-24 w-24 print:h-20 print:w-20">
+                <div className="flex items-center gap-4">
+                  <div className="relative w-24 h-24">
+                    <div className="absolute inset-0 rounded-full bg-gray-100"></div>
+                    <div 
+                      className={cn(
+                        "absolute inset-0 rounded-full",
+                        getScoreColor(score)
+                      )}
+                      style={{
+                        clipPath: `polygon(0 0, 100% 0, 100% ${score}%, 0 ${score}%)`
+                      }}
+                    ></div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-3xl font-bold print:text-2xl">{score}%</span>
+                      <span className="text-2xl font-bold">{score}%</span>
                     </div>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={[
-                            { name: "Fulfilled", value: score },
-                            { name: "Remaining", value: Math.max(0, 100 - score) }
-                          ]}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={36}
-                          outerRadius={46}
-                          startAngle={90}
-                          endAngle={-270}
-                          dataKey="value"
-                        >
-                          <Cell 
-                            fill={
-                              score >= 80 ? "#22c55e" : 
-                              score >= 50 ? "#f59e0b" : 
-                              "#ef4444"
-                            } 
-                          />
-                          <Cell fill="#e5e7eb" />
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
                   </div>
-                  <div className={`text-sm font-semibold mt-2 ${
-                    score >= 80 ? "text-green-600" : 
-                    score >= 50 ? "text-amber-600" : 
-                    "text-red-600"
-                  }`}>
-                    {score >= 80 ? t("compliance.high") : 
-                     score >= 50 ? t("compliance.medium") : 
-                     t("compliance.low")}
+                  <div className="flex-1">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Fulfilled</span>
+                        <span className="font-medium">{fulfilledCount}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Partial</span>
+                        <span className="font-medium">{partialCount}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Not Fulfilled</span>
+                        <span className="font-medium">{notFulfilledCount}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Not Applicable</span>
+                        <span className="font-medium">{notApplicableCount}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              <div className="bg-white border rounded-lg p-6 shadow-sm print:border-gray-300 print:shadow-none print:p-4">
-                <h3 className="text-lg font-semibold mb-4 print:text-base">{t("requirement.status.title")}</h3>
+              <div className="bg-card rounded-lg p-6 shadow-sm">
+                <h3 className="text-lg font-medium mb-4">Requirements by Section</h3>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <div className="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
-                      <span className="text-sm">{t("requirement.status.fulfilled")}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{fulfilledCount}</span>
-                      <span className="text-sm text-muted-foreground">({fulfilledCount > 0 ? Math.round((fulfilledCount / totalRequirements) * 100) : 0}%)</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <div className="h-3 w-3 rounded-full bg-amber-500 mr-2"></div>
-                      <span className="text-sm">{t("requirement.status.partiallyFulfilled")}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{partialCount}</span>
-                      <span className="text-sm text-muted-foreground">({partialCount > 0 ? Math.round((partialCount / totalRequirements) * 100) : 0}%)</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <div className="h-3 w-3 rounded-full bg-red-500 mr-2"></div>
-                      <span className="text-sm">{t("requirement.status.notFulfilled")}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{notFulfilledCount}</span>
-                      <span className="text-sm text-muted-foreground">({notFulfilledCount > 0 ? Math.round((notFulfilledCount / totalRequirements) * 100) : 0}%)</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <div className="h-3 w-3 rounded-full bg-slate-400 mr-2"></div>
-                      <span className="text-sm">{t("requirement.status.notApplicable")}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{notApplicableCount}</span>
-                      <span className="text-sm text-muted-foreground">({notApplicableCount > 0 ? Math.round((notApplicableCount / totalRequirements) * 100) : 0}%)</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Requirements Summary</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="w-1/4 text-left">Section</th>
-                    <th className="text-center">Total</th>
-                    <th className="text-center text-green-600">Fulfilled</th>
-                    <th className="text-center text-amber-600">Partial</th>
-                    <th className="text-center text-red-600">Not Fulfilled</th>
-                    <th className="text-center text-slate-600">N/A</th>
-                    <th className="text-center">Compliance %</th>
-                  </tr>
-                </thead>
-                <tbody>
                   {Object.entries(groupedRequirements).map(([section, reqs]) => {
-                    const sectionTotal = reqs.length;
-                    const sectionFulfilled = reqs.filter(req => req.supplierStatus === 'fulfilled').length;
-                    const sectionPartial = reqs.filter(req => req.supplierStatus === 'partially-fulfilled').length;
-                    const sectionNotFulfilled = reqs.filter(req => req.supplierStatus === 'not-fulfilled').length;
-                    const sectionNA = reqs.filter(req => req.supplierStatus === 'not-applicable').length;
-                    
-                    const sectionRelevant = sectionTotal - sectionNA;
-                    const sectionScore = sectionRelevant > 0 
-                      ? Math.round((sectionFulfilled + sectionPartial * 0.5) / sectionRelevant * 100) 
-                      : 0;
-                      
+                    const sectionScore = calculateScore(reqs);
                     return (
-                      <tr key={section}>
-                        <td className="font-medium text-left">{section}</td>
-                        <td className="text-center">{sectionTotal}</td>
-                        <td className="text-center text-green-600">{sectionFulfilled}</td>
-                        <td className="text-center text-amber-600">{sectionPartial}</td>
-                        <td className="text-center text-red-600">{sectionNotFulfilled}</td>
-                        <td className="text-center text-slate-600">{sectionNA}</td>
-                        <td className="text-center">
-                          <div className="flex items-center justify-center">
-                            <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                              <div 
-                                className={`h-2 rounded-full ${
-                                  sectionScore >= 80 ? 'bg-green-500' :
-                                  sectionScore >= 50 ? 'bg-amber-500' :
-                                                      'bg-red-500'
-                                }`}
-                                style={{ width: `${sectionScore}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-sm font-medium">{sectionScore}%</span>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  <tr className="font-bold bg-slate-50">
-                    <td className="text-left">Total</td>
-                    <td className="text-center">{totalRequirements}</td>
-                    <td className="text-center text-green-600">{fulfilledCount}</td>
-                    <td className="text-center text-amber-600">{partialCount}</td>
-                    <td className="text-center text-red-600">{notFulfilledCount}</td>
-                    <td className="text-center text-slate-600">{notApplicableCount}</td>
-                    <td className="text-center">
-                      <div className="flex items-center justify-center">
-                        <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                      <div key={section} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Section {section}</span>
+                          <span className="text-sm font-medium">{sectionScore}%</span>
+                        </div>
+                        <div className="w-full bg-gray-100 rounded-full h-2">
                           <div 
-                            className={`h-2 rounded-full ${
-                              score >= 80 ? 'bg-green-500' :
-                              score >= 50 ? 'bg-amber-500' :
-                                          'bg-red-500'
-                            }`}
-                            style={{ width: `${score}%` }}
+                            className={cn(
+                              "h-2 rounded-full",
+                              getScoreColor(sectionScore)
+                            )}
+                            style={{ width: `${sectionScore}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium">{score}%</span>
                       </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
           
-          <div className="mt-8 page-break-before">
-            <h2 className="text-xl font-bold mb-4 print:text-lg">Detailed Requirements</h2>
-            
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4 print:bg-white print:border print:border-blue-200 print:mb-6">
-              <p className="text-sm flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-blue-500" />
-                <span>Select a status for each requirement using the dropdown menus. Your selections will automatically update the compliance summary.</span>
-              </p>
-            </div>
-            
-            {Object.entries(groupedRequirements).length > 0 ? (
-              Object.entries(groupedRequirements).map(([section, requirements]) => (
-                <div key={section} className="mb-6 break-inside-avoid">
-                  <h3 className="text-lg font-semibold mb-2 border-b pb-1 print:text-base print:border-gray-400">{section}</h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse print:border print:border-gray-300">
-                      <thead className="print:bg-gray-100">
-                        <tr className="bg-gray-100">
-                          <th className="px-2 py-2 text-left border text-sm print:font-bold print:py-1">Requirement</th>
-                          <th className="px-2 py-2 text-center border w-24 text-sm print:font-bold print:py-1 print:w-auto">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {requirements.map((req) => (
-                          <tr key={req.id} className="border-b hover:bg-gray-50 print:border print:border-gray-200">
-                            <td className="px-2 py-3 border text-sm print:py-2">
-                              <div className="font-medium print:font-semibold">{req.name}</div>
-                              <div className="text-xs text-gray-600 mt-1 print:text-sm">{req.description}</div>
-                            </td>
-                            <td className="px-2 py-3 border text-center print:py-2">
-                              <div className="print:hidden">
-                                <Select
-                                  value={req.supplierStatus}
-                                  onValueChange={(value: RequirementStatus) => handleRequirementStatusChange(req.id, value)}
-                                >
-                                  <SelectTrigger className="h-8 text-xs w-full max-w-[160px] mx-auto">
-                                    <SelectValue placeholder="Select status" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="fulfilled" className="text-green-600">
-                                      {t("requirement.status.fulfilled")}
-                                    </SelectItem>
-                                    <SelectItem value="partially-fulfilled" className="text-amber-600">
-                                      {t("requirement.status.partiallyFulfilled")}
-                                    </SelectItem>
-                                    <SelectItem value="not-fulfilled" className="text-red-600">
-                                      {t("requirement.status.notFulfilled")}
-                                    </SelectItem>
-                                    <SelectItem value="not-applicable" className="text-slate-600">
-                                      {t("requirement.status.notApplicable")}
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              
-                              <div className="hidden print:block">
-                                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium
-                                  ${
-                                    req.supplierStatus === "fulfilled"
-                                      ? "bg-green-100 text-green-800"
-                                      : req.supplierStatus === "partially-fulfilled"
-                                      ? "bg-amber-100 text-amber-800"
-                                      : req.supplierStatus === "not-applicable"
-                                      ? "bg-slate-100 text-slate-800"
-                                      : "bg-red-100 text-red-800"
-                                  }
-                                `}>
-                                  {req.supplierStatus === "fulfilled"
-                                    ? t("requirement.status.fulfilled")
-                                    : req.supplierStatus === "partially-fulfilled"
-                                    ? t("requirement.status.partiallyFulfilled")
-                                    : req.supplierStatus === "not-applicable"
-                                    ? t("requirement.status.notApplicable")
-                                    : t("requirement.status.notFulfilled")}
-                                </span>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+          <div className="space-y-6">
+            {Object.entries(groupedRequirements).map(([section, requirements]) => (
+              <div key={section} className="page-break">
+                <h2 className="text-xl font-bold mb-4">Section {section}</h2>
+                <div className="space-y-4">
+                  {requirements.map((req) => (
+                    <div 
+                      key={req.id} 
+                      className={cn(
+                        "border rounded-lg p-4",
+                        req.supplierStatus === 'fulfilled' && "bg-green-50 border-green-200",
+                        req.supplierStatus === 'partially-fulfilled' && "bg-amber-50 border-amber-200",
+                        req.supplierStatus === 'not-fulfilled' && "bg-red-50 border-red-200",
+                        req.supplierStatus === 'not-applicable' && "bg-slate-50 border-slate-200"
+                      )}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-medium">{req.name}</h3>
+                          <p className="text-sm text-muted-foreground">{req.description}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={req.supplierStatus}
+                            onValueChange={(value) => handleRequirementStatusChange(req.id, value as RequirementStatus)}
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="fulfilled">Fulfilled</SelectItem>
+                              <SelectItem value="partially-fulfilled">Partially Fulfilled</SelectItem>
+                              <SelectItem value="not-fulfilled">Not Fulfilled</SelectItem>
+                              <SelectItem value="not-applicable">Not Applicable</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      {req.guidance && (
+                        <div className="mt-2 p-3 bg-muted/30 rounded-md">
+                          <p className="text-sm">
+                            <span className="font-medium">Guidance:</span> {req.guidance}
+                          </p>
+                        </div>
+                      )}
+                      <div className="mt-4 space-y-2">
+                        <Label htmlFor={`notes-${req.id}`}>Notes</Label>
+                        <Textarea
+                          id={`notes-${req.id}`}
+                          value={req.supplierNotes || ''}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleRequirementNotesChange(req.id, e.target.value)}
+                          placeholder="Add notes about this requirement..."
+                          className="min-h-[80px]"
+                        />
+                      </div>
+                      <div className="mt-2 space-y-2">
+                        <Label htmlFor={`evidence-${req.id}`}>Evidence</Label>
+                        <Textarea
+                          id={`evidence-${req.id}`}
+                          value={req.supplierEvidence || ''}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleRequirementEvidenceChange(req.id, e.target.value)}
+                          placeholder="Add evidence of compliance..."
+                          className="min-h-[80px]"
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-8 border rounded-md">
-                <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto mb-2" />
-                <h3 className="text-lg font-medium">No requirements found</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  There are no requirements available for the selected standards.
-                </p>
               </div>
-            )}
+            ))}
           </div>
           
           <div className="mt-10 pt-4 border-t text-sm text-center text-muted-foreground">
