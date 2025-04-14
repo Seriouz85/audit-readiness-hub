@@ -64,6 +64,7 @@ interface SupplierReviewReportProps {
   standards: Standard[];
   requirements: Requirement[];
   internalUser: InternalUser;
+  selectedStandardIds: string[];
   onClose: () => void;
   onSend?: (emailData: EmailData) => void;
   previewMode?: boolean;
@@ -92,6 +93,7 @@ export const SupplierReviewReport = ({
   standards, 
   requirements,
   internalUser,
+  selectedStandardIds,
   onClose,
   onSend,
   previewMode = false,
@@ -100,48 +102,39 @@ export const SupplierReviewReport = ({
   const { t } = useTranslation();
   const reportRef = useRef<HTMLDivElement>(null);
   const [activeStandardId, setActiveStandardId] = useState<string | undefined>(
-    supplier.associatedStandards.length > 0 ? supplier.associatedStandards[0].standardId : undefined
+    selectedStandardIds.length > 0 ? selectedStandardIds[0] : undefined
   );
   const [showEmailDialog, setShowEmailDialog] = useState(false);
-  const [showStandardsDialog, setShowStandardsDialog] = useState(false);
   const [enhancedRequirements, setEnhancedRequirements] = useState<RequirementWithStatus[]>([]);
-  const [selectedStandardIds, setSelectedStandardIds] = useState<string[]>(
-    supplier.associatedStandards.map(s => s.standardId)
-  );
   const [emailData, setEmailData] = useState<EmailData>({
     to: supplier.contact.email,
     subject: `Security Requirements Review from ${internalUser.department || 'Our Company'}`,
     message: `Dear ${supplier.contact.name},\n\nAs part of our ongoing supplier security assessment program, we're sending you the attached security requirements that apply to your organization.\n\nPlease review these requirements and provide evidence of compliance at your earliest convenience.\n\nBest regards,\n${internalUser.name}\n${internalUser.title || 'Security Team'}\n${internalUser.email}`,
     includeRequirements: true,
-    standardIds: supplier.associatedStandards.map(s => s.standardId)
+    standardIds: selectedStandardIds
   });
   
-  // Get selected standards
   const selectedStandards = standards.filter(std => 
     selectedStandardIds.includes(std.id)
   );
   
-  // Enhanced requirements with status, filtered by selected standards
   useEffect(() => {
-    console.log('SupplierReviewReport: Updating enhanced requirements for standards:', selectedStandardIds);
+    console.log('SupplierReviewReport: Updating enhanced requirements for standards prop:', selectedStandardIds);
     
     const relevantRequirements = requirements.filter(req => 
       selectedStandardIds.includes(req.standardId)
     );
 
     const enhanced = relevantRequirements.map(req => {
-      // You might want more sophisticated logic here to determine initial status
-      // For now, let's default based on whether it's associated with the supplier *at all*
       const isAssociated = supplier.associatedStandards
         .find(s => s.standardId === req.standardId)?.requirementIds
         .includes(req.id);
         
       return {
         ...req,
-        // Default status - might need adjustment based on actual assessment logic
         supplierStatus: isAssociated ? 'fulfilled' : 'not-fulfilled' as RequirementStatus, 
-        supplierNotes: '', // Initialize notes
-        supplierEvidence: '', // Initialize evidence
+        supplierNotes: '',
+        supplierEvidence: '',
       };
     });
     
@@ -149,26 +142,24 @@ export const SupplierReviewReport = ({
     
     setEnhancedRequirements(enhanced);
     
-    // Set the active standard if it's not already set or invalid
     if (selectedStandardIds.length > 0 && (!activeStandardId || !selectedStandardIds.includes(activeStandardId))) {
       setActiveStandardId(selectedStandardIds[0]);
+    } else if (selectedStandardIds.length === 0) {
+      setActiveStandardId(undefined);
     }
 
   }, [selectedStandardIds, requirements, supplier.associatedStandards, activeStandardId]);
   
-  // Get filtered requirements based on active standard
   const filteredRequirements = activeStandardId 
     ? enhancedRequirements.filter(req => req.standardId === activeStandardId)
     : enhancedRequirements;
   
-  // Calculate compliance statistics
   const totalRequirements = filteredRequirements.length;
   const fulfilledCount = filteredRequirements.filter(req => req.supplierStatus === 'fulfilled').length;
   const partialCount = filteredRequirements.filter(req => req.supplierStatus === 'partially-fulfilled').length;
   const notFulfilledCount = filteredRequirements.filter(req => req.supplierStatus === 'not-fulfilled').length;
   const notApplicableCount = filteredRequirements.filter(req => req.supplierStatus === 'not-applicable').length;
   
-  // Data for the chart
   const chartData = [
     { name: 'Fulfilled', value: fulfilledCount, color: '#22c55e' },
     { name: 'Partial', value: partialCount, color: '#f59e0b' },
@@ -176,13 +167,11 @@ export const SupplierReviewReport = ({
     { name: 'Not Applicable', value: notApplicableCount, color: '#94a3b8' },
   ].filter((item) => item.value > 0);
   
-  // Calculate compliance score
   const total = totalRequirements - notApplicableCount;
   const score = total > 0 
     ? Math.round((fulfilledCount + partialCount * 0.5) / total * 100) 
     : 0;
   
-  // Group requirements by section for better organization
   const groupedRequirements = filteredRequirements.reduce((acc, req) => {
     const section = req.section;
     if (!acc[section]) {
@@ -192,7 +181,6 @@ export const SupplierReviewReport = ({
     return acc;
   }, {} as Record<string, RequirementWithStatus[]>);
 
-  // Handle requirement status change
   const handleRequirementStatusChange = (reqId: string, status: RequirementStatus) => {
     setEnhancedRequirements(prev => 
       prev.map(req => 
@@ -201,7 +189,6 @@ export const SupplierReviewReport = ({
     );
   };
 
-  // Handle requirement notes change
   const handleRequirementNotesChange = (reqId: string, notes: string) => {
     setEnhancedRequirements(prev => 
       prev.map(req => 
@@ -210,7 +197,6 @@ export const SupplierReviewReport = ({
     );
   };
 
-  // Handle requirement evidence change
   const handleRequirementEvidenceChange = (reqId: string, evidence: string) => {
     setEnhancedRequirements(prev => 
       prev.map(req => 
@@ -219,15 +205,12 @@ export const SupplierReviewReport = ({
     );
   };
 
-  // Native browser print functionality for PDF export
   const handlePrintToPDF = useReactToPrint({
     content: () => reportRef.current,
     documentTitle: `${supplier.name} - Compliance Assessment`,
     onBeforeGetContent: () => {
-      // Add a loading toast
       toast.info('Preparing document for printing...');
       
-      // Add a print stylesheet to the document
       const style = document.createElement('style');
       style.id = 'print-style';
       style.innerHTML = `
@@ -320,7 +303,6 @@ export const SupplierReviewReport = ({
       return Promise.resolve();
     },
     onAfterPrint: () => {
-      // Remove the print stylesheet
       const style = document.getElementById('print-style');
       if (style) document.head.removeChild(style);
       
@@ -328,15 +310,12 @@ export const SupplierReviewReport = ({
     },
   });
 
-  // Auto-trigger PDF export when appropriate
   useEffect(() => {
-    // Only in direct PDF export mode and not in preview mode
     if (directExport && !previewMode) {
       setTimeout(() => {
         console.log('Automatically triggering PDF export');
         handlePrintToPDF();
         
-        // Call onComplete callback if provided
         if (directExport.onComplete) {
           setTimeout(() => {
             directExport.onComplete();
@@ -346,7 +325,6 @@ export const SupplierReviewReport = ({
     }
   }, [directExport, previewMode, handlePrintToPDF]);
 
-  // Handle sending email
   const handleSendEmail = () => {
     if (onSend) {
       onSend({...emailData, standardIds: selectedStandardIds});
@@ -355,28 +333,9 @@ export const SupplierReviewReport = ({
     }
   };
 
-  // Handle standards selection
-  const handleStandardsSelection = () => {
-    setSelectedStandardIds([...selectedStandardIds]);
-    setShowStandardsDialog(false);
-    
-    // Update email data with selected standards
-    setEmailData(prev => ({
-      ...prev,
-      standardIds: selectedStandardIds
-    }));
-    
-    toast.success('Selected standards updated');
-  };
-
-  // Handle direct export mode if specified
   useEffect(() => {
     if (directExport) {
       console.log('Direct export mode activated for standard:', directExport.standardId);
-      
-      // Set the active standard to the one specified
-      setActiveStandardId(directExport.standardId);
-      setSelectedStandardIds([directExport.standardId]);
     }
   }, [directExport]);
 
@@ -393,7 +352,7 @@ export const SupplierReviewReport = ({
               <div className="flex items-center gap-2 mr-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
                 <Select 
-                  value={activeStandardId} 
+                  value={activeStandardId || ''}
                   onValueChange={(value) => setActiveStandardId(value || undefined)}
                 >
                   <SelectTrigger className="w-[180px] h-9">
@@ -406,21 +365,12 @@ export const SupplierReviewReport = ({
                           {std.name} {std.version}
                         </SelectItem>
                       ))}
-                      <SelectItem value="">All Standards</SelectItem>
+                      {selectedStandards.length > 1 && <SelectItem value="">All Selected Standards</SelectItem>}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
             )}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setShowStandardsDialog(true)} 
-              className="gap-1 mr-2"
-            >
-              <Filter className="h-4 w-4" />
-              <span>Select Standards</span>
-            </Button>
             <Button 
               variant="outline" 
               size="sm" 
@@ -451,7 +401,6 @@ export const SupplierReviewReport = ({
           ref={reportRef} 
           className="supplier-report-content bg-white dark:bg-slate-900 max-w-4xl mx-auto p-8 shadow-sm border rounded-md print:shadow-none print:border-none print:p-6"
         >
-          {/* Report Header */}
           <div className="flex justify-between items-center border-b-2 border-primary pb-4 mb-6 print:mb-8">
             <div className="flex items-center gap-3">
               <div className="bg-primary text-white p-2 rounded-md">
@@ -468,7 +417,6 @@ export const SupplierReviewReport = ({
             </div>
           </div>
           
-          {/* Print-only header */}
           <div className="hidden print:block fixed top-0 left-0 right-0 p-4 border-b bg-white text-sm text-muted-foreground">
             <div className="flex justify-between items-center">
               <div>{supplier?.name} - Compliance Assessment</div>
@@ -476,7 +424,6 @@ export const SupplierReviewReport = ({
             </div>
           </div>
           
-          {/* Print-only footer */}
           <div className="hidden print:block fixed bottom-0 left-0 right-0 p-4 border-t bg-white text-sm text-muted-foreground">
             <div className="flex justify-between items-center">
               <div>Generated by: {internalUser.name}</div>
@@ -484,12 +431,10 @@ export const SupplierReviewReport = ({
             </div>
           </div>
           
-          {/* Summary Statistics */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 print:text-lg">Compliance Summary</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* Compliance Score */}
               <div className="bg-white border rounded-lg p-6 flex items-center justify-between shadow-sm print:border-gray-300 print:shadow-none print:p-4">
                 <div>
                   <h3 className="text-lg font-semibold print:text-base">{t("assessment.complianceScore")}</h3>
@@ -539,7 +484,6 @@ export const SupplierReviewReport = ({
                 </div>
               </div>
               
-              {/* Requirements Status */}
               <div className="bg-white border rounded-lg p-6 shadow-sm print:border-gray-300 print:shadow-none print:p-4">
                 <h3 className="text-lg font-semibold mb-4 print:text-base">{t("requirement.status.title")}</h3>
                 <div className="space-y-4">
@@ -588,7 +532,6 @@ export const SupplierReviewReport = ({
             </div>
           </div>
           
-          {/* Add a requirements summary table */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4">Requirements Summary</h2>
             <div className="overflow-x-auto">
@@ -612,7 +555,6 @@ export const SupplierReviewReport = ({
                     const sectionNotFulfilled = reqs.filter(req => req.supplierStatus === 'not-fulfilled').length;
                     const sectionNA = reqs.filter(req => req.supplierStatus === 'not-applicable').length;
                     
-                    // Calculate section compliance score
                     const sectionRelevant = sectionTotal - sectionNA;
                     const sectionScore = sectionRelevant > 0 
                       ? Math.round((sectionFulfilled + sectionPartial * 0.5) / sectionRelevant * 100) 
@@ -672,7 +614,6 @@ export const SupplierReviewReport = ({
             </div>
           </div>
           
-          {/* Detailed Requirements */}
           <div className="mt-8 page-break-before">
             <h2 className="text-xl font-bold mb-4 print:text-lg">Detailed Requirements</h2>
             
@@ -728,7 +669,6 @@ export const SupplierReviewReport = ({
                                 </Select>
                               </div>
                               
-                              {/* Status indicator optimized for print */}
                               <div className="hidden print:block">
                                 <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium
                                   ${
@@ -769,7 +709,6 @@ export const SupplierReviewReport = ({
             )}
           </div>
           
-          {/* Report Footer */}
           <div className="mt-10 pt-4 border-t text-sm text-center text-muted-foreground">
             <p>Generated by: {internalUser.name} ({internalUser.email})</p>
             <p className="mt-1">This assessment is confidential and contains information intended only for the supplier named above.</p>

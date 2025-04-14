@@ -529,6 +529,7 @@ const Suppliers = () => {
           standards={standards}
           requirements={requirements}
           internalUser={supplier.internalResponsible}
+          selectedStandardIds={[standardId]}
           onClose={() => {}}
           previewMode={true}
           directExport={{
@@ -941,6 +942,7 @@ const Suppliers = () => {
                               standards={standards}
                               requirements={requirements}
                               internalUser={selectedSupplier.internalResponsible}
+                              selectedStandardIds={selectedStandardIds}
                               onClose={() => {}}
                               previewMode={true}
                             />
@@ -1017,6 +1019,7 @@ const Suppliers = () => {
             standards={standards}
             requirements={requirements}
             internalUser={selectedSupplier.internalResponsible}
+            selectedStandardIds={selectedStandardIds}
             onClose={() => setIsReviewOpen(false)}
             onSend={handleSendRequirementsEmail}
           />
