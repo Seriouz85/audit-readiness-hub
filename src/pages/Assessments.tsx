@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 // import { useSearchParams } from "react-router-dom"; // Removed unused import
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+// Removed unused Card components
+// import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+// Removed unused Progress component
+// import { Progress } from "@/components/ui/progress"; 
 import { assessments as initialAssessments, standards } from "@/data/mockData";
-import { BarChart, CheckCircle2, Clock, Plus, User, Check, ChevronsUpDown } from "lucide-react";
+// Removed unused BarChart, Calendar, CheckCircle2, User icons
+import { Clock, Plus, Check, ChevronsUpDown } from "lucide-react"; 
 import { AssessmentDetail } from "@/components/assessments/AssessmentDetail";
 import { Assessment } from "@/types";
 import { toast } from "@/utils/toast";
@@ -23,13 +26,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
+// Removed unused Select components - Assuming they are unused, will verify later if needed
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue
+// } from "@/components/ui/select";
 import {
   Command,
   CommandEmpty,
@@ -44,7 +48,8 @@ import {
   PopoverContent,
   PopoverTrigger
 } from "@/components/ui/popover";
-import { Checkbox } from "@/components/ui/checkbox";
+// Removed unused Checkbox component
+// import { Checkbox } from "@/components/ui/checkbox"; 
 import { cn } from "@/lib/utils";
 
 const Assessments = () => {
