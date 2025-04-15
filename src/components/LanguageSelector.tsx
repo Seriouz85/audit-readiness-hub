@@ -44,8 +44,8 @@ export const LanguageSelector = () => {
       localStorage.setItem('useBrowserTranslation', 'true');
       
       // Check if the Google Translate API is available (common browser translation tool)
-      if ((window as any).googleTranslateElementInit) {
-        (window as any).googleTranslateElementInit();
+      if ((window as Window & { googleTranslateElementInit?: () => void }).googleTranslateElementInit) {
+        ((window as Window & { googleTranslateElementInit?: () => void }).googleTranslateElementInit)();
       } else if (navigator.language !== languageToBCP47[language]) {
         // Attempt to use the browser's internal translation feature if available
         try {
@@ -53,11 +53,12 @@ export const LanguageSelector = () => {
           document.documentElement.lang = languageToBCP47[language];
           
           // Check for Edge/Chrome translation feature
-          if ((document as any).webkitStartActivity) {
-            (document as any).webkitStartActivity({
-              action: 'translate',
-              data: languageToBCP47[language],
-            });
+          if ((document as Document & { webkitStartActivity?: (options: { action: string; data: string }) => void }).webkitStartActivity) {
+            (document as Document & { webkitStartActivity?: (options: { action: string; data: string }) => void })
+              .webkitStartActivity({
+                action: 'translate',
+                data: languageToBCP47[language],
+              });
           }
           
           // For browsers without automatic translation, we display a message to the user

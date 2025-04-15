@@ -1,73 +1,157 @@
-# Welcome to your Lovable project
+# AuditReady - Modern Compliance Management Platform
 
-## Project info
+![AuditReady](public/preview.png)
 
-**URL**: https://lovable.dev/projects/e9d53db4-0d39-4479-896a-c7b9c29fd7a3
+Transform your compliance journey with AuditReady - the intelligent platform designed for modern security teams. Say goodbye to spreadsheets and manual tracking, and embrace a streamlined, powerful solution for all your compliance needs.
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+### 📊 Comprehensive Dashboard
+- Real-time compliance monitoring
+- Interactive metrics and KPIs
+- Custom reporting capabilities
+- Risk assessment visualization
 
-**Use Lovable**
+### 🔄 Automated Assessment Engine
+- Smart control mapping across frameworks
+- Real-time progress tracking
+- Centralized evidence management
+- Version control for all documentation
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e9d53db4-0d39-4479-896a-c7b9c29fd7a3) and start prompting.
+### 🛡️ Security First
+- Enterprise-grade security
+- Role-based access control
+- Audit logging
+- Data encryption at rest and in transit
 
-Changes made via Lovable will be committed automatically to this repo.
+### 📈 Key Benefits
+- 85% reduction in assessment time
+- 24/7 continuous monitoring
+- 99.9% platform uptime
+- 500+ pre-built security controls
 
-**Use your preferred IDE**
+## 🛠️ Tech Stack
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Frontend**: React, TypeScript, Vite
+- **Styling**: TailwindCSS
+- **Animation**: Framer Motion
+- **UI Components**: shadcn/ui
+- **Icons**: Lucide Icons
+- **Routing**: React Router
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 📦 Prerequisites
 
-Follow these steps:
+- Node.js (v18 or higher)
+- npm or yarn
+- Git
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🚀 Getting Started
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/audit-readiness-hub.git
+   cd audit-readiness-hub
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+3. **Start the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+4. **Build for production**
+   ```bash
+   npm run build
+   # or
+   yarn build
+   ```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+VITE_API_URL=your_api_url
+VITE_AUTH_DOMAIN=your_auth_domain
 ```
 
-**Edit a file directly in GitHub**
+### Development Mode
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-**Use GitHub Codespaces**
+The application will be available at `http://localhost:5173`
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Production Build
 
-## What technologies are used for this project?
+```bash
+npm run build
+npm run preview
+# or
+yarn build
+yarn preview
+```
 
-This project is built with:
+## 📚 Project Structure
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+audit-readiness-hub/
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── pages/         # Page components
+│   ├── lib/           # Utilities and helpers
+│   ├── styles/        # Global styles
+│   └── main.tsx       # Application entry point
+├── public/            # Static assets
+├── index.html         # HTML template
+└── package.json       # Project dependencies
+```
 
-## How can I deploy this project?
+## 🧪 Testing
 
-Simply open [Lovable](https://lovable.dev/projects/e9d53db4-0d39-4479-896a-c7b9c29fd7a3) and click on Share -> Publish.
+```bash
+npm run test
+# or
+yarn test
+```
 
-## Can I connect a custom domain to my Lovable project?
+## 📝 Contributing
 
-Yes it is!
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📄 License
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Support
+
+For support, email support@auditready.com or join our Slack community.
+
+## 🌟 Acknowledgments
+
+- [React](https://reactjs.org/)
+- [Vite](https://vitejs.dev/)
+- [TailwindCSS](https://tailwindcss.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Framer Motion](https://www.framer.com/motion/)
+
+---
+
+Built with ❤️ by the AuditReady Team

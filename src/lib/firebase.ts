@@ -25,10 +25,5 @@ export const ADMIN_PASSWORD = "Admin123!";
 
 // Function to create an admin user if needed
 export const createAdminUser = async (): Promise<UserCredential> => {
-  try {
-    return await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
-  } catch (error: any) {
-    // If user already exists, this will throw an error with code 'auth/email-already-in-use'
-    throw error;
-  }
+  return await createUserWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
 }; 

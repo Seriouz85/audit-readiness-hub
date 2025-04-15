@@ -57,6 +57,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   const navItems = [
     { to: '/app', icon: <BarChart3 size={20} />, label: t('nav.dashboard') },
+    { to: '/app/organizations', icon: <Building size={20} />, label: t('nav.organizations') },
     { to: '/app/standards', icon: <Shield size={20} />, label: t('nav.standards') },
     { to: '/app/requirements', icon: <BookOpen size={20} />, label: t('nav.requirements') },
     { to: '/app/assessments', icon: <CheckSquare size={20} />, label: t('nav.assessments') },

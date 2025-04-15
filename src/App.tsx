@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import { LanguageProvider } from "./providers/LanguageProvider";
 
 const queryClient = new QueryClient();
+const basename = import.meta.env.DEV ? "/" : "/audit-readiness-hub";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -17,7 +18,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter basename="/audit-readiness-hub">
+        <BrowserRouter basename={basename}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />

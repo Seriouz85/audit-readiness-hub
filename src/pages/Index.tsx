@@ -9,12 +9,14 @@ import Suppliers from "@/pages/Suppliers";
 import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
+import Organizations from "@/pages/Organizations";
 
 const Index = () => {
   return (
     <AppLayout>
       <Routes>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/organizations" element={<Organizations />} />
         <Route path="/standards" element={<Standards />} />
         <Route path="/requirements" element={<Requirements />} />
         <Route path="/assessments" element={<Assessments />} />

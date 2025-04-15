@@ -4,7 +4,7 @@ import { Shield, Key, Fingerprint, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { signInWithEmailAndPassword, signInAnonymously } from "firebase/auth";
+import { signInWithEmailAndPassword, signInAnonymously, AuthError } from "firebase/auth";
 import { auth, createAdminUser, DEMO_EMAIL, DEMO_PASSWORD, ADMIN_EMAIL, ADMIN_PASSWORD } from "@/lib/firebase";
 import { toast } from "@/utils/toast";
 import { mockSignIn, mockSignInAnonymously } from "@/lib/mockAuth";
@@ -58,9 +58,10 @@ const Login = () => {
           toast.success("Successfully logged in");
           redirectToMainApp();
           return;
-        } catch (error: any) {
-          console.error("Firebase login attempt failed:", error.code);
-          setLoginError(`Firebase login failed: ${error.code}`);
+        } catch (error) {
+          const authError = error as AuthError;
+          console.error("Firebase login attempt failed:", authError.code);
+          setLoginError(`Firebase login failed: ${authError.code}`);
         }
       }
       
@@ -72,12 +73,13 @@ const Login = () => {
         toast.success("Successfully logged in with mock authentication");
         redirectToMainApp();
         return;
-      } catch (mockError: any) {
-        console.error("Mock login attempt failed:", mockError);
+      } catch (mockError) {
+        const error = mockError as Error;
+        console.error("Mock login attempt failed:", error);
         
         // If credentials don't match, show error
         setLoginError((prev) => 
-          prev ? `${prev}, Mock login failed: ${mockError.message}` : `Mock login failed: ${mockError.message}`
+          prev ? `${prev}, Mock login failed: ${error.message}` : `Mock login failed: ${error.message}`
         );
         
         // Try anonymous login as last resort
@@ -93,8 +95,9 @@ const Login = () => {
           toast.error("All authentication methods failed");
         }
       }
-    } catch (error: any) {
-      console.error("Login process error:", error);
+    } catch (error) {
+      const err = error as Error;
+      console.error("Login process error:", err);
       toast.error("Authentication failed");
     } finally {
       setIsLoading(false);

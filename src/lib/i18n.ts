@@ -36,6 +36,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Navigation
     'nav.dashboard': 'Dashboard',
+    'nav.organizations': 'Organizations',
     'nav.standards': 'Standards',
     'nav.requirements': 'Requirements',
     'nav.assessments': 'Assessments',
@@ -221,6 +222,28 @@ export const translations: Record<Language, Record<string, string>> = {
     'standard.iso-27002-2022.name': 'ISO/IEC 27002:2022',
     'standard.gdpr.name': 'GDPR',
     'standard.nis2.name': 'NIS2 Directive',
+
+    // Organizations page
+    'organizations.title': 'Organizations',
+    'organizations.description': 'Manage your organizational structure and compliance requirements',
+    'organizations.add': 'Register New Organization',
+    'organizations.structure': 'Organizational Structure',
+    'organizations.structure.description': 'View and manage your organizational hierarchy',
+    'organizations.form.basic': 'Basic Information',
+    'organizations.form.name': 'Organization Name',
+    'organizations.form.type': 'Organization Type',
+    'organizations.form.hierarchy': 'Hierarchy Level',
+    'organizations.form.registration': 'Registration Number',
+    'organizations.form.industry': 'Industry',
+    'organizations.form.employees': 'Number of Employees',
+    'organizations.form.address': 'Address Information',
+    'organizations.form.contact': 'Contact Information',
+    'organizations.form.security': 'Security Contact Information',
+    'organizations.form.description': 'Organization Description',
+    'organizations.toast.success': 'Organization registered successfully',
+    'organizations.toast.error': 'Failed to register organization',
+    'organizations.compliance.progress': 'Compliance Progress',
+    'organizations.compliance.requirements': 'requirements met',
   },
   
   // Swedish translations
@@ -235,6 +258,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Navigation
     'nav.dashboard': 'Instrumentpanel',
+    'nav.organizations': 'Organisationer',
     'nav.standards': 'Standarder',
     'nav.requirements': 'Krav',
     'nav.assessments': 'Utvärderingar',
@@ -420,6 +444,28 @@ export const translations: Record<Language, Record<string, string>> = {
     'standard.iso-27002-2022.name': 'ISO/IEC 27002:2022',
     'standard.gdpr.name': 'GDPR',
     'standard.nis2.name': 'NIS2-direktivet',
+
+    // Organizations page
+    'organizations.title': 'Organisationer',
+    'organizations.description': 'Hantera din organisationsstruktur och efterlevnadskrav',
+    'organizations.add': 'Registrera Ny Organisation',
+    'organizations.structure': 'Organisationsstruktur',
+    'organizations.structure.description': 'Visa och hantera din organisationshierarki',
+    'organizations.form.basic': 'Grundinformation',
+    'organizations.form.name': 'Organisationsnamn',
+    'organizations.form.type': 'Organisationstyp',
+    'organizations.form.hierarchy': 'Hierarkinivå',
+    'organizations.form.registration': 'Registreringsnummer',
+    'organizations.form.industry': 'Industri',
+    'organizations.form.employees': 'Antal anställda',
+    'organizations.form.address': 'Adressinformation',
+    'organizations.form.contact': 'Kontaktinformation',
+    'organizations.form.security': 'Säkerhetskontaktinformation',
+    'organizations.form.description': 'Organisationsbeskrivning',
+    'organizations.toast.success': 'Organisationen registrerades',
+    'organizations.toast.error': 'Misslyckades med att registrera organisationen',
+    'organizations.compliance.progress': 'Efterlevnadsprogres',
+    'organizations.compliance.requirements': 'krav uppfyllda',
   },
   
   // Norwegian translations
@@ -434,6 +480,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Navigation
     'nav.dashboard': 'Dashboard',
+    'nav.organizations': 'Organizations',
     'nav.standards': 'Standarder',
     'nav.requirements': 'Krav',
     'nav.assessments': 'Vurderinger',
@@ -592,6 +639,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Navigation
     'nav.dashboard': 'Dashboard',
+    'nav.organizations': 'Organizations',
     'nav.standards': 'Standarder',
     'nav.requirements': 'Krav',
     'nav.assessments': 'Vurderinger',
@@ -750,6 +798,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Navigation
     'nav.dashboard': 'Kojelauta',
+    'nav.organizations': 'Organizations',
     'nav.standards': 'Standardit',
     'nav.requirements': 'Vaatimukset',
     'nav.assessments': 'Arvioinnit',
