@@ -46,7 +46,7 @@ export function StandardCard({ standard, requirementCount, onExport, horizontal 
         <div className="border-l bg-muted/5 p-4 w-[220px] flex flex-col justify-center">
           <CardFooter className="flex gap-2 p-0 pt-2 flex-wrap">
             <Button variant="outline" size="sm" asChild className="w-full mb-2">
-              <Link to={`/requirements?standard=${standard.id}`}>
+              <Link to={`/app/requirements?standard=${standard.id}`}>
                 <BookOpen size={16} className="mr-2" />
                 <span>Requirements</span>
               </Link>
@@ -56,7 +56,7 @@ export function StandardCard({ standard, requirementCount, onExport, horizontal 
               <span>Export</span>
             </Button>
             <Button variant="default" size="sm" asChild className="w-full">
-              <Link to={`/assessments?standard=${standard.id}`}>
+              <Link to={`/app/assessments?standard=${standard.id}`}>
                 <BarChart3 size={16} className="mr-2" />
                 <span>Assess</span>
               </Link>
@@ -67,7 +67,7 @@ export function StandardCard({ standard, requirementCount, onExport, horizontal 
       {!horizontal && (
         <CardFooter className="flex gap-2 pt-2 border-t bg-muted/10">
           <Button variant="outline" size="sm" asChild className="flex-1">
-            <Link to={`/requirements?standard=${standard.id}`}>
+            <Link to={`/app/requirements?standard=${standard.id}`}>
               <BookOpen size={16} className="mr-2" />
               <span className="hidden sm:inline">Requirements</span>
               <span className="sm:hidden">View</span>
@@ -79,7 +79,7 @@ export function StandardCard({ standard, requirementCount, onExport, horizontal 
             <span className="sm:hidden">Export</span>
           </Button>
           <Button variant="default" size="sm" asChild className="flex-1">
-            <Link to={`/assessments?standard=${standard.id}`}>
+            <Link to={`/app/assessments?standard=${standard.id}`}>
               <BarChart3 size={16} className="mr-2" />
               <span className="hidden sm:inline">Assess</span>
               <span className="sm:hidden">Assess</span>
