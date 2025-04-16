@@ -94,9 +94,9 @@ const documentTypes: DocumentType[] = [
     description: 'Create detailed documentation for security processes with steps, roles, and responsibilities',
     icon: <FileType className="h-6 w-6" />,
     initialQuestions: [
-      'What security process are you documenting?',
-      'Who are the key stakeholders involved in this process?',
-      'What are the main steps or phases in this security process?'
+      'What specific security process do you need documented (be as specific as possible)?',
+      'Who are the key stakeholders involved in this specific process?',
+      'What is the main objective of this security process?'
     ]
   },
   {
@@ -263,10 +263,7 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
       console.log('Request URL:', apiUrl.replace(apiKey, '[REDACTED]'));
       
-      const requestBody = {
-        contents: [{
-          parts: [{
-            text: `You are an expert in IT security and information security documentation. 
+      let promptText = `You are an expert in IT security and information security documentation. 
             
 You are helping create a "${selectedDocType?.name}" document.
 
@@ -275,7 +272,28 @@ User's answer: "${userInput}"
 
 Based on this answer and the document type, ask only ONE follow-up question that would provide the most crucial information needed for the document. If you have enough information already, instead provide a short summary of what you'll include in the document and ask if there's anything specific they want to add.
 
-Be concise, professional, and focused. Remember that the goal is to create a high-quality security document with minimal back-and-forth.`
+Be concise, professional, and focused. Remember that the goal is to create a high-quality security document with minimal back-and-forth.`;
+
+      // Add specific instructions for process documentation
+      if (selectedDocType?.id === 'process') {
+        promptText = `You are an expert in IT security and information security documentation. 
+            
+You are helping create a Security Process Documentation specifically for the process the user has mentioned.
+
+Previous question: "${currentQuestion}"
+User's answer: "${userInput}"
+
+IMPORTANT: Focus ONLY on the specific security process mentioned by the user. Do not substitute with a different process or create a generic document. The document should be tailored exactly to the process the user has specified.
+
+Based on this answer, ask only ONE follow-up question that would provide the most crucial information needed for documenting this specific process. If you have enough information already, instead provide a short summary of what you'll include in the process document and ask if there's anything specific they want to add.
+
+Be concise, professional, and focused. Remember that the goal is to create a high-quality security process document with minimal back-and-forth.`;
+      }
+      
+      const requestBody = {
+        contents: [{
+          parts: [{
+            text: promptText
           }]
         }]
       };
@@ -372,10 +390,7 @@ Be concise, professional, and focused. Remember that the goal is to create a hig
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
       console.log('Request URL:', apiUrl.replace(apiKey, '[REDACTED]'));
       
-      const requestBody = {
-        contents: [{
-          parts: [{
-            text: `You are an expert in IT security and information security documentation. Create a professional "${selectedDocType?.name}" based on the conversation below.
+      let promptText = `You are an expert in IT security and information security documentation. Create a professional "${selectedDocType?.name}" based on the conversation below.
 
 CONVERSATION:
 ${conversationContext}
@@ -391,7 +406,34 @@ IMPORTANT GUIDELINES:
 8. Include document metadata (version, date, owner, etc.) at the top
 9. End with appendices as appropriate for this document type
 
-Create the complete document now, formatted for immediate use by the organization.`
+Create the complete document now, formatted for immediate use by the organization.`;
+
+      // Add specific instructions for process documentation
+      if (selectedDocType?.id === 'process') {
+        promptText = `You are an expert in IT security and information security documentation. Create a professional Security Process Documentation based on the conversation below.
+
+CONVERSATION:
+${conversationContext}
+
+IMPORTANT GUIDELINES:
+1. Format as a professional document with version 1.0, clear headers, and logical document flow
+2. Use clear, professional, and simple language
+3. Focus EXCLUSIVELY on documenting the SPECIFIC security process mentioned by the user - do not create a generic process or substitute a different one
+4. Structure the document as a proper process document with: Overview, Scope, Process Owner, Process Steps, Inputs/Outputs, Roles & Responsibilities, etc.
+5. Include all standard sections expected in a security process document, even if not explicitly discussed
+6. For any missing information, use placeholder text marked as "TBA-[TOPIC]" rather than omitting sections
+7. Be thorough but concise - include all necessary information without unnecessary length
+8. Include an executive summary at the beginning
+9. Include document metadata (version, date, owner, etc.) at the top
+10. Include flow diagrams instructions where appropriate
+
+Create the complete security process document now, formatted for immediate use by the organization.`;
+      }
+      
+      const requestBody = {
+        contents: [{
+          parts: [{
+            text: promptText
           }]
         }]
       };
