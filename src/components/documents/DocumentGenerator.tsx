@@ -45,47 +45,69 @@ type DocumentGeneratorProps = {
 
 const documentTypes: DocumentType[] = [
   {
+    id: 'security-policy',
+    name: 'Information Security Policy',
+    description: 'Create a comprehensive security policy document that outlines organization-wide security practices',
+    icon: <FileType className="h-6 w-6" />,
+    initialQuestions: [
+      'What is your organization type (e.g., healthcare, finance, tech startup)?',
+      'What are your primary security concerns (e.g., data breaches, compliance, insider threats)?',
+      'Do you have any specific compliance requirements (e.g., GDPR, HIPAA, ISO 27001)?'
+    ]
+  },
+  {
+    id: 'incident-response',
+    name: 'Incident Response Plan',
+    description: 'Generate a structured plan for responding to security incidents and breaches',
+    icon: <FileType className="h-6 w-6" />,
+    initialQuestions: [
+      'What types of security incidents are most concerning for your organization?',
+      'Who are the key stakeholders that should be involved in incident response?',
+      'Do you have any existing incident classification system?'
+    ]
+  },
+  {
+    id: 'risk-assessment',
+    name: 'Security Risk Assessment',
+    description: 'Create a template for assessing and documenting security risks across your organization',
+    icon: <FileType className="h-6 w-6" />,
+    initialQuestions: [
+      'What assets are most critical to protect in your organization?',
+      'What threat actors are most concerning for your industry?',
+      'Do you have any existing risk management framework?'
+    ]
+  },
+  {
+    id: 'system-security-plan',
+    name: 'System Security Plan',
+    description: 'Document the security controls and configurations for a specific system or application',
+    icon: <FileType className="h-6 w-6" />,
+    initialQuestions: [
+      'What type of system are you documenting (e.g., cloud service, internal application, network)?',
+      'What data classification levels will this system handle?',
+      'What are the primary security controls already in place?'
+    ]
+  },
+  {
     id: 'process',
-    name: 'Process Documentation',
-    description: 'Create detailed process documentation with steps, roles, and responsibilities',
+    name: 'Security Process Documentation',
+    description: 'Create detailed documentation for security processes with steps, roles, and responsibilities',
     icon: <FileType className="h-6 w-6" />,
     initialQuestions: [
-      'What is the main objective of this process?',
-      'Who are the key stakeholders involved?',
-      'What are the main steps in this process?'
-    ]
-  },
-  {
-    id: 'project-plan',
-    name: 'Project Plan with Deliverables',
-    description: 'Generate a comprehensive project plan with timelines and deliverables',
-    icon: <FileType className="h-6 w-6" />,
-    initialQuestions: [
-      'What are the project objectives?',
-      'What is the expected timeline?',
-      'What are the key deliverables?'
-    ]
-  },
-  {
-    id: 'flow-chart',
-    name: 'Process Flow Chart Documentation',
-    description: 'Create documentation for process flow charts with detailed explanations',
-    icon: <FileType className="h-6 w-6" />,
-    initialQuestions: [
-      'What process needs to be mapped?',
-      'What are the main decision points?',
-      'What are the expected outcomes?'
+      'What security process are you documenting?',
+      'Who are the key stakeholders involved in this process?',
+      'What are the main steps or phases in this security process?'
     ]
   },
   {
     id: 'action-plan',
-    name: 'Action Plan',
-    description: 'Generate a detailed action plan with tasks, owners, and timelines',
+    name: 'Security Action Plan',
+    description: 'Generate a detailed security action plan with tasks, owners, and timelines',
     icon: <FileType className="h-6 w-6" />,
     initialQuestions: [
-      'What is the main goal of this action plan?',
-      'What is the target completion date?',
-      'Who are the key stakeholders?'
+      'What security issue or initiative does this action plan address?',
+      'What is the target completion timeframe?',
+      'Who are the key stakeholders responsible for implementation?'
     ]
   }
 ];
@@ -244,7 +266,16 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
       const requestBody = {
         contents: [{
           parts: [{
-            text: `You are an expert document creation assistant. Based on the document type "${selectedDocType?.name}" and the previous context, generate a follow-up question or suggest next steps. Be concise but thorough. Current question: "${currentQuestion}", User's answer: "${userInput}"`
+            text: `You are an expert in IT security and information security documentation. 
+            
+You are helping create a "${selectedDocType?.name}" document.
+
+Previous question: "${currentQuestion}"
+User's answer: "${userInput}"
+
+Based on this answer and the document type, ask only ONE follow-up question that would provide the most crucial information needed for the document. If you have enough information already, instead provide a short summary of what you'll include in the document and ask if there's anything specific they want to add.
+
+Be concise, professional, and focused. Remember that the goal is to create a high-quality security document with minimal back-and-forth.`
           }]
         }]
       };
@@ -344,7 +375,23 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
       const requestBody = {
         contents: [{
           parts: [{
-            text: `You are an expert document creator. Based on the following conversation, generate a professional ${selectedDocType?.name} document in a clear, structured format. Include all necessary sections, details, and formatting:\n\n${conversationContext}`
+            text: `You are an expert in IT security and information security documentation. Create a professional "${selectedDocType?.name}" based on the conversation below.
+
+CONVERSATION:
+${conversationContext}
+
+IMPORTANT GUIDELINES:
+1. Format as a professional document with version 1.0, clear headers, and logical document flow
+2. Use clear, professional, and simple language
+3. Include all standard sections expected in this type of security document, even if not explicitly discussed
+4. For any missing information, use placeholder text marked as "TBA-[TOPIC]" rather than omitting sections
+5. Be thorough but concise - include all necessary information without unnecessary length
+6. Focus on creating a strong template that meets industry best practices for IT/information security
+7. Include an executive summary at the beginning
+8. Include document metadata (version, date, owner, etc.) at the top
+9. End with appendices as appropriate for this document type
+
+Create the complete document now, formatted for immediate use by the organization.`
           }]
         }]
       };
@@ -492,22 +539,22 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
               <CardDescription>Choose the type of document you want to create</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-3 md:grid-cols-3">
                 {documentTypes.map((type) => (
                   <Button
                     key={type.id}
                     variant={selectedType === type.id ? "default" : "outline"}
                     className={cn(
-                      "h-auto flex flex-col items-start space-y-2 p-4",
+                      "h-auto flex flex-col items-start space-y-2 p-3 text-left",
                       selectedType === type.id && "border-2 border-primary"
                     )}
                     onClick={() => setSelectedType(type.id)}
                   >
                     <div className="flex items-center gap-2">
                       {type.icon}
-                      <span className="font-semibold">{type.name}</span>
+                      <span className="font-semibold text-sm">{type.name}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground text-left">
+                    <p className="text-xs text-muted-foreground">
                       {type.description}
                     </p>
                   </Button>
