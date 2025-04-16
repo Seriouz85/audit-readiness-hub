@@ -17,6 +17,13 @@ import {
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
+// Custom CSS for handling text overflow
+const customStyles = {
+  wordBreak: 'break-word' as const,
+  overflowWrap: 'break-word' as const,
+  maxWidth: '100%'
+};
+
 type DocumentType = {
   id: string;
   name: string;
@@ -466,12 +473,12 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
         ) : (
           <>
             <Card className="h-[600px] flex flex-col">
-              <CardHeader>
+              <CardHeader className="flex-shrink-0">
                 <CardTitle>AI Assistant</CardTitle>
                 <CardDescription>Chat with AI to create your document</CardDescription>
               </CardHeader>
-              <CardContent className="flex-1 flex flex-col">
-                <ScrollArea className="flex-1 pr-4 mb-4">
+              <CardContent className="flex-1 flex flex-col overflow-hidden">
+                <ScrollArea className="flex-1 pr-4 mb-4 h-[calc(100%-60px)]">
                   <div className="space-y-4">
                     {messages.map((message) => (
                       <div
@@ -481,16 +488,16 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
                           message.type === 'user' ? "bg-muted ml-4" : "bg-primary/5 mr-4"
                         )}
                       >
-                        {message.type === 'ai' && <Bot className="h-6 w-6 text-primary" />}
-                        {message.type === 'user' && <div className="h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">U</div>}
-                        <div className="flex-1">
+                        {message.type === 'ai' && <Bot className="h-6 w-6 text-primary flex-shrink-0" />}
+                        {message.type === 'user' && <div className="h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold flex-shrink-0">U</div>}
+                        <div className="flex-1 break-words">
                           {message.thinking ? (
                             <div className="flex items-center gap-2">
                               <Loader2 className="h-4 w-4 animate-spin" />
                               <span className="text-muted-foreground">Thinking...</span>
                             </div>
                           ) : (
-                            <p className="text-sm">{message.content}</p>
+                            <p className="text-sm whitespace-pre-wrap" style={customStyles}>{message.content}</p>
                           )}
                         </div>
                       </div>
@@ -498,7 +505,7 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
                     <div ref={messagesEndRef} />
                   </div>
                 </ScrollArea>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-shrink-0">
                   <Input
                     placeholder="Type your response..."
                     value={userInput}
@@ -513,15 +520,15 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
             </Card>
 
             <Card className="h-[600px] flex flex-col">
-              <CardHeader>
+              <CardHeader className="flex-shrink-0">
                 <CardTitle>Document Preview</CardTitle>
                 <CardDescription>Real-time preview of your document</CardDescription>
               </CardHeader>
-              <CardContent className="flex-1">
+              <CardContent className="flex-1 overflow-hidden">
                 <ScrollArea className="h-full">
                   {generatedContent ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
-                      <div className="whitespace-pre-wrap font-mono text-sm">
+                    <div className="prose prose-sm dark:prose-invert max-w-none p-2">
+                      <div className="whitespace-pre-wrap font-mono text-sm break-words overflow-wrap-anywhere" style={customStyles}>
                         {generatedContent}
                       </div>
                     </div>
