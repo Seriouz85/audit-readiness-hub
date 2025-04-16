@@ -15,13 +15,13 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
 }) => {
   return (
     <motion.div 
-      className={cn("mb-8 border-b pb-4", className)}
+      className={cn("mb-5 border-b pb-3", className)}
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
       <motion.h1 
-        className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
+        className="text-2xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.4 }}
@@ -31,7 +31,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       
       {description && (
         <motion.p 
-          className="text-muted-foreground mt-2 text-lg max-w-3xl"
+          className="text-muted-foreground mt-1 text-sm max-w-3xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.4 }}

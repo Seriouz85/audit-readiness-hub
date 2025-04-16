@@ -10,6 +10,7 @@ import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
 import Organizations from "@/pages/Organizations";
+import Documents from "@/pages/Documents";
 
 const Index = () => {
   return (
@@ -22,6 +23,7 @@ const Index = () => {
         <Route path="/assessments" element={<Assessments />} />
         <Route path="/applications" element={<Applications />} />
         <Route path="/suppliers" element={<Suppliers />} />
+        <Route path="/documents/*" element={<Documents />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>

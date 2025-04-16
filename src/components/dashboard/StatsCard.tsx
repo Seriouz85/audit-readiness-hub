@@ -24,21 +24,21 @@ export function StatsCard({
 }: StatsCardProps) {
   return (
     <Card className={cn("overflow-hidden group", className)}>
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <CardTitle className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+      <CardHeader className="flex flex-row items-center justify-between pb-1.5 space-y-0">
+        <CardTitle className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
           {title}
         </CardTitle>
-        <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:scale-110 transition-transform">
+        <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-muted-foreground group-hover:scale-110 transition-transform">
           {icon}
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold mb-1 group-hover:scale-105 origin-left transition-transform">{value}</div>
+      <CardContent className="pt-1">
+        <div className="text-xl font-bold mb-0.5 group-hover:scale-105 origin-left transition-transform">{value}</div>
         {description && (
-          <p className="text-xs text-muted-foreground mb-2">{description}</p>
+          <p className="text-xs text-muted-foreground mb-1">{description}</p>
         )}
         {trend && (
-          <div className="flex items-center mt-2 bg-slate-50 dark:bg-slate-800 p-1.5 px-2 rounded-lg w-fit">
+          <div className="flex items-center mt-1 bg-slate-50 dark:bg-slate-800 p-1 px-1.5 rounded-md w-fit">
             <span
               className={cn(
                 "text-xs font-medium flex items-center",
@@ -46,13 +46,13 @@ export function StatsCard({
               )}
             >
               {trend.isPositive ? (
-                <ArrowUpIcon size={14} className="mr-1" />
+                <ArrowUpIcon size={12} className="mr-0.5" />
               ) : (
-                <ArrowDownIcon size={14} className="mr-1" />
+                <ArrowDownIcon size={12} className="mr-0.5" />
               )}
               {Math.abs(trend.value)}%
             </span>
-            <span className="text-xs text-muted-foreground ml-1">from last month</span>
+            <span className="text-xs text-muted-foreground ml-0.5">from last month</span>
           </div>
         )}
       </CardContent>

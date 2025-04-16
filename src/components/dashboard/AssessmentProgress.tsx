@@ -70,22 +70,22 @@ export function AssessmentProgress({ assessments }: AssessmentProgressProps) {
 
   return (
     <Card className="h-full shadow-xl hover:shadow-2xl transition-all duration-500">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+            <CardTitle className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
               Recent Assessments
             </CardTitle>
-            <CardDescription>Assessment progress tracking</CardDescription>
+            <CardDescription className="text-xs">Assessment progress tracking</CardDescription>
           </div>
-          <div className="bg-slate-100 dark:bg-slate-800 rounded-full px-3 py-1 text-xs font-medium">
+          <div className="bg-slate-100 dark:bg-slate-800 rounded-full px-2 py-0.5 text-xs font-medium">
             {sortedAssessments.length} of {assessments.length} shown
           </div>
         </div>
       </CardHeader>
       <CardContent>
         {sortedAssessments.length > 0 ? (
-          <div className="space-y-5">
+          <div className="space-y-4">
             {sortedAssessments.map((assessment, index) => {
               const statusColors = getStatusColors(assessment.status);
               const isHovered = hoveredIndex === index;
@@ -94,7 +94,7 @@ export function AssessmentProgress({ assessments }: AssessmentProgressProps) {
               return (
                 <motion.div 
                   key={assessment.id} 
-                  className="space-y-3 p-3 rounded-lg transition-all duration-300 ease-in-out hover:bg-slate-50 dark:hover:bg-slate-800/50 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 shadow-sm hover:shadow-md cursor-pointer"
+                  className="space-y-2 p-2 rounded-lg transition-all duration-300 ease-in-out hover:bg-slate-50 dark:hover:bg-slate-800/50 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 shadow-sm hover:shadow-md cursor-pointer"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1, duration: 0.3 }}
@@ -106,21 +106,21 @@ export function AssessmentProgress({ assessments }: AssessmentProgressProps) {
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="font-medium text-base flex items-center gap-2">
+                      <div className="font-medium text-sm flex items-center gap-2">
                         {assessment.name}
                         <motion.div
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -10 }}
                           transition={{ duration: 0.2 }}
                         >
-                          <ArrowRight size={14} className="text-blue-500" />
+                          <ArrowRight size={12} className="text-blue-500" />
                         </motion.div>
                       </div>
-                      <div className="flex items-center text-sm text-muted-foreground mt-1 gap-2">
-                        <CalendarDays size={14} />
+                      <div className="flex items-center text-xs text-muted-foreground mt-0.5 gap-1.5">
+                        <CalendarDays size={12} />
                         <span>Started {formatDate(assessment.startDate)}</span>
                         {daysSinceStart > 0 && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700">
                             {daysSinceStart} days ago
                           </span>
                         )}
@@ -128,7 +128,7 @@ export function AssessmentProgress({ assessments }: AssessmentProgressProps) {
                     </div>
                     <div className="flex items-center">
                       <span
-                        className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusColors.bg} ${statusColors.text}`}
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusColors.bg} ${statusColors.text}`}
                       >
                         {assessment.status === "completed"
                           ? "Completed"
@@ -138,7 +138,7 @@ export function AssessmentProgress({ assessments }: AssessmentProgressProps) {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <div className="flex-1">
                       <Progress 
                         value={assessment.progress} 
@@ -150,17 +150,17 @@ export function AssessmentProgress({ assessments }: AssessmentProgressProps) {
                             : "bg-gray-100 [&>div]:bg-gray-500"
                         }`}
                         style={{
-                          height: isHovered ? '0.75rem' : '0.625rem'
+                          height: isHovered ? '0.625rem' : '0.5rem'
                         }}
                       />
                     </div>
-                    <div className="flex items-center gap-1 bg-white dark:bg-gray-800 shadow-sm px-2 py-1 rounded">
-                      <Clock size={14} className={statusColors.text} />
-                      <span className="text-sm font-medium">{assessment.progress}%</span>
+                    <div className="flex items-center gap-1 bg-white dark:bg-gray-800 shadow-sm px-1.5 py-0.5 rounded">
+                      <Clock size={12} className={statusColors.text} />
+                      <span className="text-xs font-medium">{assessment.progress}%</span>
                     </div>
                   </div>
                   <motion.div 
-                    className="text-xs text-muted-foreground flex justify-between items-center pt-1 overflow-hidden"
+                    className="text-[10px] text-muted-foreground flex justify-between items-center pt-0.5 overflow-hidden"
                     initial={{ maxHeight: 0, opacity: 0 }}
                     animate={{ 
                       maxHeight: isHovered ? '2rem' : '0',
@@ -176,7 +176,7 @@ export function AssessmentProgress({ assessments }: AssessmentProgressProps) {
             })}
             
             <motion.div 
-              className="mt-4 flex justify-center"
+              className="mt-3 flex justify-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
@@ -184,28 +184,29 @@ export function AssessmentProgress({ assessments }: AssessmentProgressProps) {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="group"
+                className="group px-2 py-1 h-auto text-xs"
                 onClick={() => navigate('/assessments')}
               >
                 View All Assessments
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="ml-1.5 h-3 w-3 transition-transform group-hover:translate-x-1" />
               </Button>
             </motion.div>
           </div>
         ) : (
-          <div className="text-center py-12 text-muted-foreground bg-slate-50 dark:bg-slate-800/30 rounded-lg">
-            <Clock size={40} className="mx-auto mb-3 text-slate-300 dark:text-slate-600" />
-            <p className="font-medium">No assessments found</p>
-            <p className="text-sm mt-1">Create an assessment to get started</p>
+          <div className="text-center py-8 text-muted-foreground bg-slate-50 dark:bg-slate-800/30 rounded-lg">
+            <Clock size={32} className="mx-auto mb-2 text-slate-300 dark:text-slate-600" />
+            <p className="text-sm font-medium">No assessments found</p>
+            <p className="text-xs mt-0.5">Create an assessment to get started</p>
             
-            <motion.div className="mt-4" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div className="mt-3" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button 
                 variant="outline" 
                 size="sm"
+                className="px-2 py-1 h-auto text-xs"
                 onClick={() => navigate('/assessments')}
               >
                 Go to Assessments
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-1.5 h-3 w-3" />
               </Button>
             </motion.div>
           </div>

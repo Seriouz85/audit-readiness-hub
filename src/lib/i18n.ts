@@ -42,6 +42,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav.assessments': 'Assessments',
     'nav.applications': 'Applications',
     'nav.suppliers': 'Suppliers',
+    'nav.documents': 'Documents',
     'nav.reports': 'Reports',
     'nav.settings': 'Settings',
     
@@ -264,6 +265,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav.assessments': 'Utvärderingar',
     'nav.applications': 'Applikationer',
     'nav.suppliers': 'Leverantörer',
+    'nav.documents': 'Dokument',
     'nav.reports': 'Rapporter',
     'nav.settings': 'Inställningar',
     

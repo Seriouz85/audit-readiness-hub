@@ -51,10 +51,10 @@ export function ComplianceChart({ data }: ComplianceChartProps) {
 
   return (
     <Card className="h-full overflow-hidden">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-1">
         <CardTitle className="flex justify-between items-center">
-          <span className="text-xl font-bold">Compliance Status</span>
-          <span className="text-4xl font-bold text-blue-600">
+          <span className="text-lg font-semibold">Compliance Status</span>
+          <span className="text-3xl font-bold text-blue-600">
             {complianceScore}%
           </span>
         </CardTitle>
@@ -62,15 +62,15 @@ export function ComplianceChart({ data }: ComplianceChartProps) {
       <CardContent>
         {total > 0 ? (
           <div className="flex flex-col items-center">
-            <div className="w-full h-[300px]">
+            <div className="w-full h-[240px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={chartData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
+                    innerRadius={48}
+                    outerRadius={64}
                     paddingAngle={5}
                     dataKey="value"
                     nameKey="name"
@@ -84,33 +84,34 @@ export function ComplianceChart({ data }: ComplianceChartProps) {
                   </Pie>
                   <Tooltip
                     formatter={(value, name) => [
-                      `${value} requirement${value !== 1 ? "s" : ""} (${getPercentage(Number(value))}%)`,
+                      `${value} req${value !== 1 ? "s" : ""} (${getPercentage(Number(value))}%)`,
                       name,
                     ]}
                     contentStyle={{
                       backgroundColor: "rgba(255, 255, 255, 0.95)",
-                      borderRadius: "8px",
-                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                      borderRadius: "6px",
+                      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
                       border: "none",
-                      padding: "8px 12px",
+                      padding: "6px 10px",
+                      fontSize: "12px"
                     }}
                   />
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="w-full grid grid-cols-2 gap-2 mt-4">
+            <div className="w-full grid grid-cols-2 gap-1.5 mt-3">
               {chartData.map((item) => (
                 <div 
                   key={item.name} 
-                  className="flex items-center p-2 rounded-lg bg-gray-50"
+                  className="flex items-center p-1.5 rounded-md bg-gray-50 dark:bg-gray-800/50"
                 >
                   <div 
-                    className="w-4 h-4 rounded-full mr-2" 
+                    className="w-3 h-3 rounded-full mr-1.5 flex-shrink-0" 
                     style={{ backgroundColor: item.color }}
                   />
                   <div className="flex flex-col">
-                    <span className="text-sm font-medium">{item.name}</span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs font-medium">{item.name}</span>
+                    <span className="text-[10px] text-gray-500 dark:text-gray-400">
                       {item.value} ({getPercentage(item.value)}%)
                     </span>
                   </div>
@@ -119,7 +120,7 @@ export function ComplianceChart({ data }: ComplianceChartProps) {
             </div>
           </div>
         ) : (
-          <div className="flex h-[300px] items-center justify-center">
+          <div className="flex h-[240px] items-center justify-center">
             <p className="text-gray-500">No data available</p>
           </div>
         )}
