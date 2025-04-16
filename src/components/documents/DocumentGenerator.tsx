@@ -406,6 +406,8 @@ IMPORTANT GUIDELINES:
 8. Include document metadata (version, date, owner, etc.) at the top
 9. End with appendices as appropriate for this document type
 
+CRITICAL: Output ONLY the final document content. Do NOT include any hypothetical user responses, explanations of what you're doing, or anything outside the actual document content. Start directly with the document title and metadata.
+
 Create the complete document now, formatted for immediate use by the organization.`;
 
       // Add specific instructions for process documentation
@@ -426,6 +428,8 @@ IMPORTANT GUIDELINES:
 8. Include an executive summary at the beginning
 9. Include document metadata (version, date, owner, etc.) at the top
 10. Include flow diagrams instructions where appropriate
+
+CRITICAL: Output ONLY the final document content. Do NOT include any analysis of the user's request, hypothetical conversations, explanations of what you're doing, or anything outside the actual document content. Start directly with the document title and metadata.
 
 Create the complete security process document now, formatted for immediate use by the organization.`;
       }
