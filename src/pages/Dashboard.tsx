@@ -5,13 +5,11 @@ import { AssessmentProgress } from "@/components/dashboard/AssessmentProgress";
 import { PageHeader } from "@/components/PageHeader";
 import { dashboardStats, assessments } from "@/data/mockData";
 import { motion } from "framer-motion";
-import { useTranslation } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 const Dashboard = () => {
-  const { t } = useTranslation();
-  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -45,50 +43,56 @@ const Dashboard = () => {
 
   return (
     <motion.div 
-      className="space-y-8 pb-10"
+      className="pt-0 space-y-6 pb-8 w-full"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <PageHeader
-        title="Compliance Dashboard"
-        description="Track your organization's compliance status and assessments across all standards"
-        className="!border-none !pb-0"
-      />
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between !border-none !pb-0">
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-bold tracking-tight">Compliance Dashboard</h1>
+          <p className="text-muted-foreground mt-1">
+            Track your organization's compliance status and assessments across all standards
+          </p>
+        </div>
+        <div className="mt-3 md:mt-0 py-1 px-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800 shadow-sm">
+          <h2 className="text-xl font-bold tracking-tight text-blue-800 dark:text-blue-400">Welcome Security User</h2>
+        </div>
+      </div>
       
       <motion.div
         variants={fadeInVariants}
-        className="bg-gradient-to-r from-blue-50 via-white to-teal-50 dark:from-blue-950/30 dark:via-slate-900/50 dark:to-teal-950/30 rounded-xl p-6 shadow-lg"
+        className="bg-gradient-to-r from-blue-50 via-white to-teal-50 dark:from-blue-950/30 dark:via-slate-900/50 dark:to-teal-950/30 rounded-xl p-4 shadow-lg w-full"
       >
-        <div className="flex flex-col md:flex-row justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-lg">
-              <TrendingUp size={22} className="text-blue-600 dark:text-blue-400" />
+        <div className="flex flex-col md:flex-row justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg">
+              <TrendingUp size={18} className="text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h3 className="font-medium">Recent Trend</h3>
-              <p className="text-muted-foreground">Your compliance is improving by 5% since last month</p>
+              <h3 className="text-sm font-medium">Recent Trend</h3>
+              <p className="text-xs text-muted-foreground">Your compliance is improving by 5% since last month</p>
             </div>
           </div>
           
-          <div className="flex flex-row gap-4">
-            <div className="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
-              <div className="bg-amber-100 dark:bg-amber-900/50 p-2 rounded-lg">
-                <Calendar size={18} className="text-amber-600 dark:text-amber-400" />
+          <div className="flex flex-row gap-3">
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">
+              <div className="bg-amber-100 dark:bg-amber-900/50 p-1.5 rounded-lg">
+                <Calendar size={14} className="text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Next assessment</p>
-                <p className="font-medium">June 15, 2023</p>
+                <p className="text-xs text-muted-foreground">Next assessment</p>
+                <p className="text-sm font-medium">June 15, 2023</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
-              <div className="bg-green-100 dark:bg-green-900/50 p-2 rounded-lg">
-                <Clock size={18} className="text-green-600 dark:text-green-400" />
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">
+              <div className="bg-green-100 dark:bg-green-900/50 p-1.5 rounded-lg">
+                <Clock size={14} className="text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Last updated</p>
-                <p className="font-medium">2 days ago</p>
+                <p className="text-xs text-muted-foreground">Last updated</p>
+                <p className="text-sm font-medium">2 days ago</p>
               </div>
             </div>
           </div>
@@ -96,34 +100,34 @@ const Dashboard = () => {
       </motion.div>
       
       <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 w-full"
         variants={itemVariants}
       >
         <StatsCard
           title="Total Standards"
           value={dashboardStats.totalStandards}
-          icon={<Shield size={20} />}
+          icon={<Shield size={16} />}
           description="Active compliance standards"
           className="shadow-md hover:shadow-lg transition-shadow"
         />
         <StatsCard
           title="Total Requirements"
           value={dashboardStats.totalRequirements}
-          icon={<BookOpen size={20} />}
+          icon={<BookOpen size={16} />}
           description="Across all standards"
           className="shadow-md hover:shadow-lg transition-shadow"
         />
         <StatsCard
           title="Total Assessments"
           value={dashboardStats.totalAssessments}
-          icon={<CheckSquare size={20} />}
+          icon={<CheckSquare size={16} />}
           description="Ongoing and completed"
           className="shadow-md hover:shadow-lg transition-shadow"
         />
         <StatsCard
           title="Compliance Score"
           value={`${dashboardStats.complianceScore}%`}
-          icon={<BarChart3 size={20} />}
+          icon={<BarChart3 size={16} />}
           trend={{
             value: 5,
             isPositive: true
@@ -134,45 +138,45 @@ const Dashboard = () => {
       </motion.div>
       
       <motion.div 
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6" 
+        className="grid grid-cols-1 lg:grid-cols-3 gap-5 w-full" 
         variants={itemVariants}
       >
-        <motion.div variants={itemVariants} className="shadow-lg rounded-xl overflow-hidden">
-          <ComplianceChart data={dashboardStats.requirementStatusCounts} />
-        </motion.div>
-        <motion.div variants={itemVariants} className="shadow-lg rounded-xl overflow-hidden">
+        <div className="flex flex-col gap-5 lg:col-span-1">
+          <motion.div variants={itemVariants} className="shadow-lg rounded-xl overflow-hidden">
+            <ComplianceChart data={dashboardStats.requirementStatusCounts} />
+          </motion.div>
+          
+          <motion.div variants={itemVariants}>
+            <Card className="shadow-md hover:shadow-lg transition-all h-full">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold">Upcoming Tasks</h3>
+                  <Button variant="outline" size="sm" className="px-2 py-1 h-auto text-xs">View All</Button>
+                </div>
+                <div className="space-y-2">
+                  {[1, 2, 3].map((item) => (
+                    <div key={item} className="p-2 border rounded-lg flex justify-between items-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <div className="bg-blue-100 dark:bg-blue-900/50 p-1.5 rounded-lg">
+                          <Shield size={14} className="text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Complete ISO 27001 Assessment</p>
+                          <p className="text-xs text-muted-foreground">Due in 3 days</p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm" className="px-2 py-1 h-auto text-xs">Start</Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+        
+        <motion.div variants={itemVariants} className="shadow-lg rounded-xl overflow-hidden lg:col-span-2">
           <AssessmentProgress assessments={assessments} />
         </motion.div>
-      </motion.div>
-      
-      <motion.div
-        variants={itemVariants}
-        className="mt-8"
-      >
-        <Card className="shadow-md hover:shadow-lg transition-all">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold">Upcoming Tasks</h3>
-              <Button variant="outline" size="sm">View All</Button>
-            </div>
-            <div className="space-y-3">
-              {[1, 2, 3].map((item) => (
-                <div key={item} className="p-3 border rounded-lg flex justify-between items-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg">
-                      <Shield size={16} className="text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Complete ISO 27001 Assessment</p>
-                      <p className="text-sm text-muted-foreground">Due in 3 days</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm">Start</Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </motion.div>
     </motion.div>
   );
