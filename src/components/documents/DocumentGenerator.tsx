@@ -94,7 +94,7 @@ const documentTypes: DocumentType[] = [
     description: 'Create detailed documentation for security processes with steps, roles, and responsibilities',
     icon: <FileType className="h-6 w-6" />,
     initialQuestions: [
-      'What specific security process do you need documented (be as specific as possible)?',
+      'What specific security process do you need documented? Type the EXACT name of the process (e.g., "Identity and Access Management", "Vulnerability Management", etc.)',
       'Who are the key stakeholders involved in this specific process?',
       'What is the main objective of this security process?'
     ]
@@ -276,18 +276,38 @@ Be concise, professional, and focused. Remember that the goal is to create a hig
 
       // Add specific instructions for process documentation
       if (selectedDocType?.id === 'process') {
-        promptText = `You are an expert in IT security and information security documentation. 
-            
-You are helping create a Security Process Documentation specifically for the process the user has mentioned.
+        // Extract process name from the conversation if this is the first question
+        let processName = userInput;
+        if (currentQuestion.includes("What specific security process")) {
+          processName = userInput.trim();
+          // Store the process name in a variable for future use
+          sessionStorage.setItem('documentProcessName', processName);
+        } else {
+          // Retrieve the process name if it was stored previously
+          const storedProcessName = sessionStorage.getItem('documentProcessName');
+          if (storedProcessName) {
+            processName = storedProcessName;
+          }
+        }
+
+        promptText = `You are an expert in IT security and information security documentation.
+
+PROCESS NAME: "${processName}"
+
+You are creating documentation SPECIFICALLY for the "${processName}" process, and ONLY this process.
 
 Previous question: "${currentQuestion}"
 User's answer: "${userInput}"
 
-IMPORTANT: Focus ONLY on the specific security process mentioned by the user. Do not substitute with a different process or create a generic document. The document should be tailored exactly to the process the user has specified.
+CRITICAL INSTRUCTIONS:
+1. You are documenting the "${processName}" process ONLY
+2. Do NOT switch to any other process type
+3. Do NOT create documentation for "Incident Response" or any other process unless the user EXPLICITLY requested "${processName}" as "Incident Response"
+4. Stay focused ONLY on "${processName}" throughout the entire conversation
 
-Based on this answer, ask only ONE follow-up question that would provide the most crucial information needed for documenting this specific process. If you have enough information already, instead provide a short summary of what you'll include in the process document and ask if there's anything specific they want to add.
+Based on this answer, ask only ONE follow-up question that would provide crucial information needed for documenting the "${processName}" process. If you have enough information already, provide a short summary of what you'll include in the "${processName}" process document and ask if there's anything specific they want to add.
 
-Be concise, professional, and focused. Remember that the goal is to create a high-quality security process document with minimal back-and-forth.`;
+Be concise, professional, and focused.`;
       }
       
       const requestBody = {
@@ -412,26 +432,66 @@ Create the complete document now, formatted for immediate use by the organizatio
 
       // Add specific instructions for process documentation
       if (selectedDocType?.id === 'process') {
-        promptText = `You are an expert in IT security and information security documentation. Create a professional Security Process Documentation based on the conversation below.
+        // Extract process name from the conversation
+        let processName = "specified security process";
+        
+        // First check if we have it in session storage
+        const storedProcessName = sessionStorage.getItem('documentProcessName');
+        if (storedProcessName) {
+          processName = storedProcessName;
+        } else {
+          // Try to extract from first user message that answers the first question
+          const firstQuestion = documentTypes.find(t => t.id === 'process')?.initialQuestions[0] || '';
+          const firstAnswer = messages.find(m => 
+            m.type === 'user' && 
+            messages[messages.indexOf(m) - 1]?.content?.includes(firstQuestion)
+          );
+          
+          if (firstAnswer) {
+            processName = firstAnswer.content.trim();
+            sessionStorage.setItem('documentProcessName', processName);
+          }
+        }
+
+        promptText = `You are an expert in IT security and information security documentation.
+
+PROCESS NAME: "${processName}"
+
+You must create a professional Security Process Documentation SPECIFICALLY for the "${processName}" process based on the conversation below.
 
 CONVERSATION:
 ${conversationContext}
 
-IMPORTANT GUIDELINES:
-1. Format as a professional document with version 1.0, clear headers, and logical document flow
-2. Use clear, professional, and simple language
-3. Focus EXCLUSIVELY on documenting the SPECIFIC security process mentioned by the user - do not create a generic process or substitute a different one
-4. Structure the document as a proper process document with: Overview, Scope, Process Owner, Process Steps, Inputs/Outputs, Roles & Responsibilities, etc.
-5. Include all standard sections expected in a security process document, even if not explicitly discussed
-6. For any missing information, use placeholder text marked as "TBA-[TOPIC]" rather than omitting sections
-7. Be thorough but concise - include all necessary information without unnecessary length
-8. Include an executive summary at the beginning
-9. Include document metadata (version, date, owner, etc.) at the top
-10. Include flow diagrams instructions where appropriate
+CRITICAL INSTRUCTIONS:
+1. You are documenting the "${processName}" process ONLY
+2. The document title MUST be "${processName} Process"
+3. Every section MUST relate specifically to "${processName}"
+4. Do NOT create documentation for "Incident Response" or any other process unless "${processName}" is literally "Incident Response"
+5. If the process is "IAM" or "Identity and Access Management", focus ONLY on identity and access management procedures
+6. Stay focused ONLY on "${processName}" throughout the entire document
 
-CRITICAL: Output ONLY the final document content. Do NOT include any analysis of the user's request, hypothetical conversations, explanations of what you're doing, or anything outside the actual document content. Start directly with the document title and metadata.
+DOCUMENT STRUCTURE:
+1. Document title: "${processName} Process"
+2. Document metadata (version 1.0, date, owner, etc.)
+3. Executive summary of the "${processName}" process
+4. Scope and objectives specific to "${processName}"
+5. "${processName}" process owner and stakeholders
+6. Detailed "${processName}" process steps
+7. Roles and responsibilities within the "${processName}" process
+8. Inputs and outputs of the "${processName}" process
+9. "${processName}" metrics and measurements
+10. Related "${processName}" policies and references
+11. Appendices as needed for "${processName}"
 
-Create the complete security process document now, formatted for immediate use by the organization.`;
+FORMAT GUIDELINES:
+1. Use clear, professional, and simple language
+2. For any missing information, use placeholder text marked as "TBA-[TOPIC]" rather than omitting sections
+3. Be thorough but concise - include all necessary information without unnecessary length
+4. Include flow diagrams instructions where appropriate
+
+CRITICAL: Output ONLY the final document content. Start directly with the document title and metadata. Do NOT switch to a different process type.
+
+Create the complete "${processName}" process document now, formatted for immediate use by the organization.`;
       }
       
       const requestBody = {
