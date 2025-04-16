@@ -130,18 +130,14 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
   const testApiConnection = async () => {
     try {
       console.log('Testing API connection...');
-      const apiUrl = `https://generativelanguage.googleapis.com/v2/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
       
       const testBody = {
         contents: [{
           parts: [{
             text: "Hello, this is a test message. Please respond with 'OK' if you receive this."
           }]
-        }],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 10,
-        }
+        }]
       };
 
       const response = await fetch(apiUrl, {
@@ -221,7 +217,7 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
 
     try {
       console.log('Making API request to Gemini...');
-      const apiUrl = `https://generativelanguage.googleapis.com/v2/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
       console.log('Request URL:', apiUrl.replace(apiKey, '[REDACTED]'));
       
       const requestBody = {
@@ -229,31 +225,7 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
           parts: [{
             text: `You are an expert document creation assistant. Based on the document type "${selectedDocType?.name}" and the previous context, generate a follow-up question or suggest next steps. Be concise but thorough. Current question: "${currentQuestion}", User's answer: "${userInput}"`
           }]
-        }],
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_NONE"
-          }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
-        }
+        }]
       };
 
       console.log('Request body:', JSON.stringify(requestBody, null, 2));
@@ -285,7 +257,9 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
       const data = await response.json();
       console.log('API Response:', data);
 
-      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                         data.candidates?.[0]?.content?.text ||
+                         data.text;
       
       if (!aiResponse) {
         throw new Error('No valid response from AI');
@@ -332,7 +306,7 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
         .join('\n');
 
       console.log('Generating final document...');
-      const apiUrl = `https://generativelanguage.googleapis.com/v2/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
       console.log('Request URL:', apiUrl.replace(apiKey, '[REDACTED]'));
       
       const requestBody = {
@@ -340,31 +314,7 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
           parts: [{
             text: `You are an expert document creator. Based on the following conversation, generate a professional ${selectedDocType?.name} document in a clear, structured format. Include all necessary sections, details, and formatting:\n\n${conversationContext}`
           }]
-        }],
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_NONE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_NONE"
-          }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 8192,
-        }
+        }]
       };
 
       console.log('Request body:', JSON.stringify(requestBody, null, 2));
@@ -396,13 +346,25 @@ const DocumentGenerator = ({ apiKey }: DocumentGeneratorProps) => {
       const data = await response.json();
       console.log('API Response:', data);
 
-      const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const documentContent = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                             data.candidates?.[0]?.content?.text ||
+                             data.text || 
+                             '';
       
-      if (!generatedText) {
-        throw new Error('No valid response from AI');
+      if (!documentContent) {
+        throw new Error('No valid document content received from AI');
       }
 
-      setGeneratedContent(generatedText);
+      setGeneratedContent(documentContent);
+      setMessages(prev => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          type: 'system',
+          content: 'Document successfully generated! You can now download it.'
+        }
+      ]);
+
     } catch (error) {
       console.error('Detailed error:', error);
       let errorMessage = 'An unexpected error occurred';
