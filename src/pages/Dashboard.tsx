@@ -2,12 +2,10 @@ import { BarChart3, BookOpen, CheckSquare, Shield, TrendingUp, Calendar, Clock }
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ComplianceChart } from "@/components/dashboard/ComplianceChart";
 import { AssessmentProgress } from "@/components/dashboard/AssessmentProgress";
-import { PageHeader } from "@/components/PageHeader";
 import { dashboardStats, assessments } from "@/data/mockData";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 const Dashboard = () => {
   const containerVariants = {
