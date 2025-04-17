@@ -16,38 +16,12 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import ReactMarkdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
-import rehypeSanitize from 'rehype-sanitize';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle } from 'docx';
-import { saveAs } from 'file-saver';
 
 // Custom CSS for handling text overflow
 const customStyles = {
   wordBreak: 'break-word' as const,
   overflowWrap: 'break-word' as const,
   maxWidth: '100%'
-};
-
-// Markdown styles for document preview
-const markdownStyles = {
-  h1: "text-2xl font-bold mt-6 mb-4 pb-1 border-b",
-  h2: "text-xl font-bold mt-5 mb-3",
-  h3: "text-lg font-bold mt-4 mb-2",
-  h4: "text-base font-semibold mt-3 mb-2",
-  h5: "text-sm font-semibold mt-2 mb-1",
-  h6: "text-sm font-medium mt-2 mb-1",
-  p: "my-3",
-  ul: "list-disc pl-6 my-3",
-  ol: "list-decimal pl-6 my-3",
-  li: "my-1",
-  blockquote: "border-l-4 border-gray-200 dark:border-gray-700 pl-4 py-2 my-3 text-gray-600 dark:text-gray-300 italic",
-  table: "min-w-full divide-y divide-gray-200 dark:divide-gray-700 my-4 border border-gray-200 dark:border-gray-700",
-  th: "px-3 py-2 text-left text-xs font-medium uppercase tracking-wider bg-gray-100 dark:bg-gray-800",
-  td: "px-3 py-2 whitespace-normal text-sm",
-  tr: "even:bg-gray-50 dark:even:bg-gray-900",
-  pre: "bg-gray-100 dark:bg-gray-800 p-3 rounded my-3 overflow-auto",
-  code: "bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm",
 };
 
 type DocumentType = {
@@ -451,15 +425,8 @@ IMPORTANT GUIDELINES:
 7. Include an executive summary at the beginning
 8. Include document metadata (version, date, owner, etc.) at the top
 9. End with appendices as appropriate for this document type
-10. Format your response using Markdown syntax:
-   - Use # for main headings, ## for subheadings, etc.
-   - Use **bold** for emphasis
-   - Use - or * for bullet points
-   - Use tables where appropriate with |---|---| syntax
-   - Format code or commands with \`backticks\`
-   - Use horizontal rules (---) to separate major sections
 
-CRITICAL: Output ONLY the final document content. Do NOT include any hypothetical user responses, explanations of what you're doing, or anything outside the actual document content. Start directly with the document title as a # level 1 heading.
+CRITICAL: Output ONLY the final document content. Do NOT include any hypothetical user responses, explanations of what you're doing, or anything outside the actual document content. Start directly with the document title and metadata.
 
 Create the complete document now, formatted for immediate use by the organization.`;
 
@@ -604,142 +571,18 @@ Create the complete "${processName}" process document now, formatted for immedia
     }
   };
 
-  // New enhanced downloadDocument function using docx library
   const downloadDocument = () => {
     if (!generatedContent || !selectedDocType) return;
     
-    // Convert markdown to docx using docx library
-    const doc = new Document({
-      sections: [
-        {
-          properties: {},
-          children: convertMarkdownToDocx(generatedContent)
-        },
-      ],
-    });
-
-    // Create and save the file
-    Packer.toBlob(doc).then(blob => {
-      saveAs(blob, `${selectedDocType.name.toLowerCase().replace(/\s+/g, '-')}.docx`);
-    });
-  };
-
-  // Helper function to convert markdown to docx elements
-  const convertMarkdownToDocx = (markdown: string): any[] => {
-    const lines = markdown.split('\n');
-    const docxElements: any[] = [];
-    let inList = false;
-    let listItems: Paragraph[] = [];
-    let inCodeBlock = false;
-    let codeContent = '';
-
-    lines.forEach(line => {
-      // Heading handling
-      if (line.startsWith('# ')) {
-        docxElements.push(new Paragraph({
-          text: line.substring(2),
-          heading: HeadingLevel.HEADING_1,
-          thematicBreak: true
-        }));
-      } else if (line.startsWith('## ')) {
-        docxElements.push(new Paragraph({
-          text: line.substring(3),
-          heading: HeadingLevel.HEADING_2
-        }));
-      } else if (line.startsWith('### ')) {
-        docxElements.push(new Paragraph({
-          text: line.substring(4),
-          heading: HeadingLevel.HEADING_3
-        }));
-      } else if (line.startsWith('#### ')) {
-        docxElements.push(new Paragraph({
-          text: line.substring(5),
-          heading: HeadingLevel.HEADING_4
-        }));
-      } 
-      // List handling
-      else if (line.startsWith('- ') || line.startsWith('* ')) {
-        if (!inList) {
-          inList = true;
-          listItems = [];
-        }
-        listItems.push(new Paragraph({
-          text: line.substring(2),
-          bullet: { level: 0 }
-        }));
-      } 
-      // Handle code blocks
-      else if (line.startsWith('```')) {
-        if (!inCodeBlock) {
-          inCodeBlock = true;
-          codeContent = '';
-        } else {
-          inCodeBlock = false;
-          docxElements.push(new Paragraph({
-            text: codeContent,
-            style: "Code",
-            shading: {
-              type: "solid",
-              color: "F2F2F2",
-            },
-          }));
-        }
-      }
-      // If we're in a code block, collect content
-      else if (inCodeBlock) {
-        codeContent += line + '\n';
-      }
-      // Normal paragraph
-      else if (line.trim() !== '') {
-        // Process bold text within paragraphs
-        let text = line;
-        let segments = [];
-        let lastIndex = 0;
-        
-        // Simple regex to find **bold** text
-        const boldRegex = /\*\*(.*?)\*\*/g;
-        let match;
-        
-        while ((match = boldRegex.exec(text)) !== null) {
-          // Add text before the bold
-          if (match.index > lastIndex) {
-            segments.push(new TextRun(text.substring(lastIndex, match.index)));
-          }
-          
-          // Add the bold text
-          segments.push(new TextRun({
-            text: match[1],
-            bold: true,
-          }));
-          
-          lastIndex = match.index + match[0].length;
-        }
-        
-        // Add remaining text
-        if (lastIndex < text.length) {
-          segments.push(new TextRun(text.substring(lastIndex)));
-        }
-        
-        // If we parsed any bold segments, use them, otherwise use the whole line
-        if (segments.length > 0) {
-          docxElements.push(new Paragraph({ children: segments }));
-        } else {
-          docxElements.push(new Paragraph({ text: line }));
-        }
-      } 
-      // Empty line
-      else {
-        docxElements.push(new Paragraph({}));
-      }
-      
-      // If we finished a list, add all items
-      if (inList && (line.trim() === '' || !(line.startsWith('- ') || line.startsWith('* ')))) {
-        docxElements.push(...listItems);
-        inList = false;
-      }
-    });
-    
-    return docxElements;
+    const blob = new Blob([generatedContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedDocType.name.toLowerCase().replace(/\s+/g, '-')}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   };
 
   const resetGenerator = () => {
@@ -894,31 +737,10 @@ Create the complete "${processName}" process document now, formatted for immedia
               <CardContent className="flex-1 overflow-hidden">
                 <ScrollArea className="h-full">
                   {generatedContent ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none p-4 pb-12">
-                      <ReactMarkdown 
-                        rehypePlugins={[rehypeRaw, rehypeSanitize]}
-                        components={{
-                          h1: ({node, ...props}) => <h1 className={markdownStyles.h1} {...props} />,
-                          h2: ({node, ...props}) => <h2 className={markdownStyles.h2} {...props} />,
-                          h3: ({node, ...props}) => <h3 className={markdownStyles.h3} {...props} />,
-                          h4: ({node, ...props}) => <h4 className={markdownStyles.h4} {...props} />,
-                          h5: ({node, ...props}) => <h5 className={markdownStyles.h5} {...props} />,
-                          h6: ({node, ...props}) => <h6 className={markdownStyles.h6} {...props} />,
-                          p: ({node, ...props}) => <p className={markdownStyles.p} {...props} />,
-                          ul: ({node, ...props}) => <ul className={markdownStyles.ul} {...props} />,
-                          ol: ({node, ...props}) => <ol className={markdownStyles.ol} {...props} />,
-                          li: ({node, ...props}) => <li className={markdownStyles.li} {...props} />,
-                          blockquote: ({node, ...props}) => <blockquote className={markdownStyles.blockquote} {...props} />,
-                          table: ({node, ...props}) => <table className={markdownStyles.table} {...props} />,
-                          th: ({node, ...props}) => <th className={markdownStyles.th} {...props} />,
-                          td: ({node, ...props}) => <td className={markdownStyles.td} {...props} />,
-                          tr: ({node, ...props}) => <tr className={markdownStyles.tr} {...props} />,
-                          pre: ({node, ...props}) => <pre className={markdownStyles.pre} {...props} />,
-                          code: ({node, ...props}) => <code className={markdownStyles.code} {...props} />,
-                        }}
-                      >
+                    <div className="prose prose-sm dark:prose-invert max-w-none p-2">
+                      <div className="whitespace-pre-wrap font-mono text-sm break-words overflow-wrap-anywhere" style={customStyles}>
                         {generatedContent}
-                      </ReactMarkdown>
+                      </div>
                     </div>
                   ) : (
                     <div className="h-full flex flex-col items-center justify-center gap-4 text-center p-4">
