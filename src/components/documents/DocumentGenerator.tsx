@@ -596,40 +596,47 @@ Create the complete "${processName}" process document now, formatted for immedia
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">AI Document Generator</h1>
           <p className="text-muted-foreground">Create professional documents with AI assistance</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap justify-end">
           {autoGenerateEnabled ? (
             <Button 
               variant="outline" 
               onClick={() => setAutoGenerateEnabled(false)}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 whitespace-nowrap min-w-[170px]"
             >
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
               <span>Auto-Generate ON</span>
             </Button>
           ) : (
             <Button 
               variant="outline" 
               onClick={() => setAutoGenerateEnabled(true)}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 whitespace-nowrap min-w-[170px]"
             >
-              <div className="h-4 w-4 border border-muted-foreground rounded-full" />
+              <div className="h-4 w-4 border border-muted-foreground rounded-full flex-shrink-0" />
               <span>Auto-Generate OFF</span>
             </Button>
           )}
           {generatedContent && (
             <>
-              <Button variant="outline" onClick={resetGenerator}>
-                <RefreshCw className="mr-2 h-4 w-4" />
+              <Button 
+                variant="outline" 
+                onClick={resetGenerator}
+                className="whitespace-nowrap"
+              >
+                <RefreshCw className="mr-2 h-4 w-4 flex-shrink-0" />
                 Start New
               </Button>
-              <Button onClick={downloadDocument}>
-                <Download className="mr-2 h-4 w-4" />
+              <Button 
+                onClick={downloadDocument}
+                className="whitespace-nowrap"
+              >
+                <Download className="mr-2 h-4 w-4 flex-shrink-0" />
                 Download DOCX
               </Button>
             </>
@@ -637,139 +644,150 @@ Create the complete "${processName}" process document now, formatted for immedia
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         {!isTypeSelected ? (
           <Card className="md:col-span-2">
             <CardHeader>
               <CardTitle>Select Document Type</CardTitle>
-              <CardDescription>Choose the type of document you want to create</CardDescription>
+              <CardDescription>Choose the type of document you want to generate</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-3 md:grid-cols-3">
-                {documentTypes.map((type) => (
+              <div className="grid gap-3 md:grid-cols-3 sm:grid-cols-2">
+                {documentTypes.map(type => (
                   <Button
                     key={type.id}
                     variant={selectedType === type.id ? "default" : "outline"}
                     className={cn(
-                      "h-auto flex flex-col items-start space-y-2 p-3 text-left",
-                      selectedType === type.id && "border-2 border-primary"
+                      "h-auto flex flex-col items-start space-y-2 p-3 text-left min-h-[120px]",
+                      selectedType === type.id && "bg-primary text-primary-foreground"
                     )}
                     onClick={() => setSelectedType(type.id)}
                   >
-                    <div className="flex items-center gap-2">
-                      {type.icon}
-                      <span className="font-semibold text-sm">{type.name}</span>
+                    <div className="flex items-start gap-2">
+                      {React.cloneElement(type.icon as React.ReactElement, {
+                        className: cn(
+                          "h-6 w-6",
+                          selectedType === type.id ? "text-primary-foreground" : "text-primary"
+                        )
+                      })}
+                      <div className="font-semibold">{type.name}</div>
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <div className={cn(
+                      "text-sm",
+                      selectedType === type.id ? "text-primary-foreground/80" : "text-muted-foreground"
+                    )}>
                       {type.description}
-                    </p>
+                    </div>
                   </Button>
                 ))}
               </div>
-              <Button 
-                className="mt-6 w-full" 
-                onClick={handleTypeSelection}
-                disabled={!selectedType}
-              >
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                Apply Selection
-              </Button>
             </CardContent>
           </Card>
         ) : (
           <>
-            <Card className="h-[600px] flex flex-col">
-              <CardHeader className="flex-shrink-0">
-                <CardTitle>AI Assistant</CardTitle>
-                <CardDescription>Chat with AI to create your document</CardDescription>
+            <Card className="h-[500px] flex flex-col">
+              <CardHeader>
+                <CardTitle>Chat with AI</CardTitle>
+                <CardDescription>Ask questions to generate your {documentTypes.find(t => t.id === selectedType)?.name.toLowerCase()}</CardDescription>
+                <Button 
+                  variant="link" 
+                  onClick={resetGenerator} 
+                  className="p-0 h-auto text-sm">
+                  <CheckCircle2 className="mr-2 h-4 w-4 flex-shrink-0" />
+                  Change Document Type
+                </Button>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col overflow-hidden">
                 <ScrollArea className="flex-1 pr-4 mb-4 h-[calc(100%-60px)]">
-                  <div className="space-y-4">
-                    {messages.map((message) => (
-                      <div
+                  <div className="space-y-4 mb-4">
+                    {messages.map((message, i) => (
+                      <div 
                         key={message.id}
                         className={cn(
-                          "flex gap-3 p-4 rounded-lg",
-                          message.type === 'user' ? "bg-muted ml-4" : "bg-primary/5 mr-4"
+                          "flex gap-3 w-full",
+                          message.type === 'ai' ? 'items-start' : 'items-start'
                         )}
                       >
                         {message.type === 'ai' && <Bot className="h-6 w-6 text-primary flex-shrink-0" />}
                         {message.type === 'user' && <div className="h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold flex-shrink-0">U</div>}
-                        <div className="flex-1 break-words">
-                          {message.thinking ? (
-                            <div className="flex items-center gap-2">
+                        <div className="flex-1 space-y-2">
+                          <div className="p-3 rounded-lg bg-muted/50">
+                            {message.thinking ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
-                              <span className="text-muted-foreground">Thinking...</span>
-                            </div>
-                          ) : (
-                            <p className="text-sm whitespace-pre-wrap" style={customStyles}>{message.content}</p>
-                          )}
+                            ) : (
+                              <div style={customStyles} className="whitespace-pre-wrap">
+                                {message.content}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
                     <div ref={messagesEndRef} />
                   </div>
                 </ScrollArea>
-                <div className="flex gap-2 flex-shrink-0">
-                  <Input
-                    placeholder="Type your response..."
-                    value={userInput}
+                <div className="flex gap-2">
+                  <Input 
+                    value={userInput} 
                     onChange={(e) => setUserInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleUserInput()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleUserInput();
+                      }
+                    }}
+                    placeholder="Type your request..."
+                    disabled={isGenerating}
+                    className="flex-1"
                   />
                   <Button onClick={handleUserInput}>
-                    <Send className="h-4 w-4" />
+                    <Send className="h-4 w-4 flex-shrink-0" />
                   </Button>
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="h-[600px] flex flex-col">
-              <CardHeader className="flex-shrink-0">
+            <Card className="h-[500px] flex flex-col">
+              <CardHeader>
                 <CardTitle>Document Preview</CardTitle>
-                <CardDescription>
-                  {documentVersion > 0 
-                    ? `Real-time preview (version ${documentVersion})` 
-                    : "Complete the conversation to generate your document"}
-                </CardDescription>
+                <CardDescription>Live preview of the generated document</CardDescription>
               </CardHeader>
               <CardContent className="flex-1 overflow-hidden">
                 <ScrollArea className="h-full">
                   {generatedContent ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none p-2">
+                    <div className="markdown-content">
                       <div className="whitespace-pre-wrap font-mono text-sm break-words overflow-wrap-anywhere" style={customStyles}>
                         {generatedContent}
                       </div>
                     </div>
                   ) : (
                     <div className="h-full flex flex-col items-center justify-center gap-4 text-center p-4">
-                      <FileOutput className="h-12 w-12 text-muted-foreground" />
+                      <FileOutput className="h-12 w-12 text-muted-foreground flex-shrink-0" />
                       <div>
-                        <p className="text-muted-foreground">
-                          {autoGenerateEnabled 
-                            ? "Answer the first question to see your document preview" 
-                            : "Complete the conversation with the AI assistant to generate your document"}
+                        <h3 className="font-semibold mb-1">No Document Generated Yet</h3>
+                        <p className="text-muted-foreground text-sm">
+                          Chat with the AI to start generating your document.
+                          {autoGenerateEnabled && ' Document will automatically generate after your interactions.'}
                         </p>
+                      </div>
+                      {!autoGenerateEnabled && (
                         <Button 
-                          variant="outline" 
-                          className="mt-4"
                           onClick={generateFinalDocument}
-                          disabled={messages.length < 4 || isGenerating}
+                          disabled={isGenerating || messages.length < 2} 
+                          className="mt-2 whitespace-nowrap"
                         >
                           {isGenerating ? (
                             <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin flex-shrink-0" />
                               Generating...
                             </>
                           ) : (
                             <>
-                              <FileOutput className="mr-2 h-4 w-4" />
+                              <FileOutput className="mr-2 h-4 w-4 flex-shrink-0" />
                               Generate Document
                             </>
                           )}
                         </Button>
-                      </div>
+                      )}
                     </div>
                   )}
                 </ScrollArea>
