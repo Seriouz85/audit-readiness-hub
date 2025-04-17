@@ -10,7 +10,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: process.env.NODE_ENV === "production" ? "/audit-readiness-hub/" : "/",
+  base: "/",
   server: {
     host: "::",
     port: 8080,
