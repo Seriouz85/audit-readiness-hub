@@ -652,17 +652,27 @@ Create the complete "${processName}" process document now, formatted for immedia
               <CardDescription>Choose the type of document you want to generate</CardDescription>
             </CardHeader>
             <CardContent>
+<<<<<<< Updated upstream
               <div className="grid gap-3 md:grid-cols-3 sm:grid-cols-2">
+=======
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+>>>>>>> Stashed changes
                 {documentTypes.map(type => (
                   <Button
                     key={type.id}
                     variant={selectedType === type.id ? "default" : "outline"}
+                    size="doctype"
                     className={cn(
+<<<<<<< Updated upstream
                       "h-auto flex flex-col items-start space-y-2 p-3 text-left min-h-[120px]",
+=======
+                      "relative w-full flex flex-col items-start text-left rounded-lg border min-h-[110px] !p-3 overflow-hidden group",
+>>>>>>> Stashed changes
                       selectedType === type.id && "bg-primary text-primary-foreground"
                     )}
                     onClick={() => setSelectedType(type.id)}
                   >
+<<<<<<< Updated upstream
                     <div className="flex items-start gap-2">
                       {React.cloneElement(type.icon as React.ReactElement, {
                         className: cn(
@@ -678,6 +688,25 @@ Create the complete "${processName}" process document now, formatted for immedia
                     )}>
                       {type.description}
                     </div>
+=======
+                    <div className="flex items-start gap-2 w-full">
+                      {React.cloneElement(type.icon as React.ReactElement, {
+                        className: cn(
+                          "h-5 w-5 shrink-0",
+                          selectedType === type.id ? "text-primary-foreground" : "text-primary"
+                        )
+                      })}
+                      <h3 className="font-semibold text-sm break-words w-full leading-tight line-clamp-1">{type.name}</h3>
+                    </div>
+                    <div className="w-full mt-0.5 mb-auto">
+                      <p className={cn(
+                        "text-xs text-muted-foreground w-full leading-snug whitespace-normal break-words",
+                        selectedType === type.id && "text-primary-foreground/90"
+                      )}>
+                        {type.description}
+                      </p>
+                    </div>
+>>>>>>> Stashed changes
                   </Button>
                 ))}
               </div>
