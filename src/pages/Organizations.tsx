@@ -330,7 +330,7 @@ export default function Organizations() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Phone Number</FormLabel>
+                            <FormLabel>Phone</FormLabel>
                             <FormControl>
                               <Input placeholder="Enter phone number" {...field} />
                             </FormControl>
