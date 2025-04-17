@@ -21,6 +21,8 @@ import { cn } from '@/lib/utils';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { NotificationsMenu } from '@/components/NotificationsMenu';
 import { useTranslation } from '@/lib/i18n';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { useTheme } from 'next-themes';
 
 type SubNavItem = {
   to: string;
@@ -113,6 +115,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
   const { t } = useTranslation();
+  const { theme } = useTheme();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -224,6 +227,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       <main className="flex-1 flex flex-col overflow-hidden">
         <div className="flex justify-end items-center p-3 border-b">
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <NotificationsMenu />
             <LanguageSelector />
           </div>
