@@ -5,14 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { signInWithEmailAndPassword, signInAnonymously, AuthError } from "firebase/auth";
-import { auth, createAdminUser, DEMO_EMAIL, DEMO_PASSWORD, ADMIN_EMAIL, ADMIN_PASSWORD } from "@/lib/firebase";
+import { auth, DEMO_EMAIL, DEMO_PASSWORD } from "@/lib/firebase";
 import { toast } from "@/utils/toast";
 import { mockSignIn, mockSignInAnonymously } from "@/lib/mockAuth";
 import { useTheme } from "next-themes";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
-// GitHub Pages application URL
-const MAIN_APP_URL = "https://payamyek.github.io/audit-readiness-hub/";
+// Removed unused variables: createAdminUser, ADMIN_EMAIL, ADMIN_PASSWORD, MAIN_APP_URL
 
 const Login = () => {
   const navigate = useNavigate();

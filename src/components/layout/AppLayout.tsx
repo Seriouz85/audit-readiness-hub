@@ -15,7 +15,9 @@ import {
   ChevronRight,
   AlertCircle,
   FileOutput,
-  AlertTriangle
+  AlertTriangle,
+  ListTree,
+  Network
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -162,9 +164,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     if (itemPath === '/app/documents' || itemPath === '/app/risk-management') {
       return location.pathname.startsWith(itemPath);
     }
-    // Special handling for the new Organizations structure
-    if (itemPath === '/app/organizations') {
-      return location.pathname.startsWith(itemPath);
+    // Special handling for the Organizations section
+    if (itemPath === '/app/organizations') { 
+      // Check if the current path starts with /app/organizations
+      // This will make the parent item active when viewing the list or the chart
+      return location.pathname.startsWith(itemPath); 
     }
     // Exact match for other routes
     return location.pathname === itemPath;
@@ -173,12 +177,12 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const navItems = [
     { to: '/app', icon: <BarChart3 size={20} />, label: t('nav.dashboard') },
     { 
-      to: '/app/organizations', // This path might not be directly navigable now, acts as a parent
+      to: '/app/organizations', // Parent path - clicking this can now expand/collapse
       icon: <Building size={20} />, 
-      label: t('nav.organizations'),
+      label: t('nav.organizations', 'Organizations'), // Added default text
       subItems: [
-        { to: '/app/organizations/chart', icon: <FileText size={16} />, label: 'Organizational Chart' },
-        // Add other organization-related sub-items here if needed in the future
+        { to: '/app/organizations', icon: <ListTree size={16} />, label: 'Organization List' }, // Link to the list view
+        { to: '/app/organizations/chart', icon: <Network size={16} />, label: 'Organizational Chart' } // Link to the chart view
       ]
     },
     { to: '/app/standards', icon: <Shield size={20} />, label: t('nav.standards') },
@@ -222,7 +226,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           isActive={isItemActive(item.to)}
           subItems={item.subItems}
           isExpanded={expandedItems.includes(item.to)}
-          onToggle={() => toggleExpanded(item.to)}
+          onToggle={() => item.subItems && toggleExpanded(item.to)}
         />
       ))}
     </nav>

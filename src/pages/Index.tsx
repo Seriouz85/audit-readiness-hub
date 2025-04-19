@@ -16,6 +16,7 @@ import ReportRisk from "@/pages/risk-management/ReportRisk";
 import ManageRisks from "@/pages/risk-management/ManageRisks";
 import RiskSettings from "@/pages/risk-management/RiskSettings";
 import RiskReports from "@/pages/risk-management/RiskReports";
+import OrganizationalChart from "@/pages/OrganizationalChart";
 
 const Index = () => {
   return (
@@ -23,6 +24,7 @@ const Index = () => {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/organizations" element={<Organizations />} />
+        <Route path="/organizations/chart" element={<OrganizationalChart />} />
         <Route path="/standards" element={<Standards />} />
         <Route path="/requirements" element={<Requirements />} />
         <Route path="/assessments" element={<Assessments />} />
