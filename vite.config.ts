@@ -4,7 +4,8 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
-  const base = command === 'serve' ? '/' : '/audit-readiness-hub/'
+  const isDev = command === 'serve';
+  const base = isDev ? '/' : '/audit-readiness-hub/';
   
   return {
     plugins: [react()],
@@ -17,6 +18,7 @@ export default defineConfig(({ command }) => {
     server: {
       host: "::",
       port: 8080,
+      strictPort: true,
     },
     build: {
       outDir: "dist",
@@ -29,6 +31,9 @@ export default defineConfig(({ command }) => {
           },
         },
       },
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react-router-dom'],
     },
   }
 });

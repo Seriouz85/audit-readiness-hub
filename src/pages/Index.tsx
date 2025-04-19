@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import Standards from "@/pages/Standards";
@@ -23,16 +23,16 @@ const Index = () => {
     <AppLayout>
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/organizations" element={<Organizations />} />
-        <Route path="/organizations/chart" element={<OrgChart />} />
         <Route path="/standards" element={<Standards />} />
         <Route path="/requirements" element={<Requirements />} />
         <Route path="/assessments" element={<Assessments />} />
         <Route path="/applications" element={<Applications />} />
         <Route path="/suppliers" element={<Suppliers />} />
-        <Route path="/documents/*" element={<Documents />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/organizations" element={<Organizations />} />
+        <Route path="/organizations/chart" element={<OrgChart />} />
+        <Route path="/documents/*" element={<Documents />} />
         <Route path="/risk-management" element={<RiskManagement />} />
         <Route path="/risk-management/report" element={<ReportRisk />} />
         <Route path="/risk-management/manage/risks" element={<ManageRisks />} />

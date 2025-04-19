@@ -160,15 +160,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   };
 
   const isItemActive = (itemPath: string) => {
-    // Special handling for nested routes (like documents/* and risk-management/*)
-    if (itemPath === '/app/documents' || itemPath === '/app/risk-management') {
+    // Handle all nested routes
+    if (itemPath.startsWith('/app/')) {
       return location.pathname.startsWith(itemPath);
-    }
-    // Special handling for the Organizations section
-    if (itemPath === '/app/organizations') { 
-      // Check if the current path starts with /app/organizations
-      // This will make the parent item active when viewing the list or the chart
-      return location.pathname.startsWith(itemPath); 
     }
     // Exact match for other routes
     return location.pathname === itemPath;

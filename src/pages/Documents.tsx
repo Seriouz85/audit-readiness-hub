@@ -16,10 +16,10 @@ const Documents = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="linked" replace />} />
-      <Route path="/linked" element={<LinkedDocuments />} />
-      <Route path="/missing" element={<MissingEvidence />} />
-      <Route path="/generator" element={<DocumentGenerator apiKey={geminiApiKey} />} />
+      <Route path="" element={<Navigate to="linked" replace />} />
+      <Route path="linked" element={<LinkedDocuments />} />
+      <Route path="missing" element={<MissingEvidence />} />
+      <Route path="generator" element={<DocumentGenerator apiKey={geminiApiKey} />} />
     </Routes>
   );
 };

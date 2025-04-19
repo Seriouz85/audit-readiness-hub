@@ -1,23 +1,28 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import ReactFlow, {
+import type {
   Node,
   Edge,
+  Connection,
+  NodeTypes,
+  NodeOrigin,
+  NodeChange,
+  NodeProps,
+} from 'reactflow';
+import {
+  ReactFlow,
   Controls,
   useNodesState,
   useEdgesState,
   addEdge,
-  Connection,
   Panel,
   ReactFlowProvider,
-  NodeTypes,
   MiniMap,
   useReactFlow,
   Handle,
   Position,
-  NodeOrigin,
-  NodeChange,
-  NodeProps
+  Background,
+  BackgroundVariant
 } from 'reactflow';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import 'reactflow/dist/style.css';
 import '@/styles/org-chart.css';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,11 +30,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { mockOrganizations } from './Organizations';
 import { Organization } from './Organizations';
-import { FileDown, FileUp, Expand, Maximize2, Minimize2, AlignVerticalJustifyStart, FileText } from 'lucide-react';
+import { FileDown, FileUp, Expand, Maximize2, Minimize2, AlignVerticalJustifyStart } from 'lucide-react';
 import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { useToast } from '@/components/ui/use-toast';
+
+// Add Vite environment variable type declarations
+declare global {
+  interface ImportMetaEnv {
+    readonly VITE_GEMINI_API_KEY: string;
+  }
+
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
+}
 
 // Define types
 // Revert to simpler structure: ChartNode extends Node, data holds org details
@@ -41,22 +56,17 @@ interface ChartNode extends Node {
     type: string; // Keep as string, color mapping handles specifics
     securityContact?: string | { name: string; email: string };
     isConnectable?: boolean;
+    hierarchyLevel: number;
     // Include other necessary fields from Organization if accessed directly in node
     // e.g., parentId?: string;
   };
 }
 
 // Moved getNodeColor outside component for broader scope
-const getNodeColor = (type: string | undefined) => {
-  if (!type) return 'bg-gray-50'; // Return only background class
-  switch (type.toLowerCase()) {
-    case 'parent company': return 'bg-blue-50';
-    case 'subsidiary': return 'bg-green-50';
-    case 'division': return 'bg-purple-50';
-    case 'department': return 'bg-orange-50';
-    case 'branch': return 'bg-pink-50';
-    default: return 'bg-gray-50';
-  }
+const getNodeColor = (hierarchyLevel: number) => {
+  if (hierarchyLevel === 1) return '#FF6B6B'; // Parent company
+  if (hierarchyLevel === 2) return '#4ECDC4'; // Subsidiaries
+  return '#45B7D1'; // Divisions
 };
 
 // Helper function to format security contact
@@ -67,44 +77,56 @@ const getSecurityContact = (contact: string | { name: string; email: string } | 
 };
 
 // Custom Node Component - Adjust props type back
-const OrganizationNode: React.FC<NodeProps<ChartNode['data']>> = ({ data }) => {
-  const nodeColorClasses: { [key: string]: string } = useMemo(() => ({
-    parent: 'bg-gray-50',
-    subsidiary: 'bg-green-50',
-    division: 'bg-purple-50',
-    department: 'bg-orange-50',
-    branch: 'bg-pink-50',
-    default: 'bg-blue-50',
-  }), []);
-
-  const bgColor = nodeColorClasses[data.type] || nodeColorClasses.default;
+const OrganizationNode = ({ data }: NodeProps<ChartNode['data']>) => {
+  const bgColor = getNodeColor(data.hierarchyLevel);
 
   return (
-    <div className={`px-8 py-5 rounded-lg border border-gray-300 min-w-[240px] max-w-[320px] ${bgColor} relative shadow-sm`}>
+    <div 
+      style={{
+        padding: '10px',
+        borderRadius: '5px',
+        backgroundColor: bgColor,
+        color: 'white',
+        minWidth: '240px',
+        maxWidth: '320px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        position: 'relative',
+      }}
+    >
       {/* Target Handle (Top) - Always present but might not be connectable depending on context */}
       <Handle
         type="target"
         position={Position.Top}
-        id={`${data.id}-target`} // Ensure unique handle ID
+        id={`${data.id}-target`}
         className="w-2 h-2 !bg-gray-500 opacity-50"
-        isConnectable={data.isConnectable ?? true} // Make connectable by default in builder?
+        isConnectable={data.isConnectable ?? true}
       />
 
-      <div className="font-semibold text-lg mb-2 text-gray-900 text-center">{data.label}</div>
-      <div className="text-sm font-medium text-gray-600 mb-4 text-center">{data.type}</div>
+      <div style={{ fontWeight: 600, fontSize: '1.125rem', marginBottom: '0.5rem', textAlign: 'center' }}>
+        {data.label}
+      </div>
+      <div style={{ fontSize: '0.875rem', fontWeight: 500, marginBottom: '1rem', textAlign: 'center' }}>
+        {data.type}
+      </div>
 
       {data.securityContact && (
-         <div className="text-xs text-gray-600 border-t border-gray-200 pt-3 mt-3 text-center">
-           <div className="font-medium mb-1">Security Contact:</div>
-           {getSecurityContact(data.securityContact)}
-         </div>
-       )}
+        <div style={{ 
+          fontSize: '0.75rem', 
+          borderTop: '1px solid rgba(255,255,255,0.2)', 
+          paddingTop: '0.75rem', 
+          marginTop: '0.75rem',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontWeight: 500, marginBottom: '0.25rem' }}>Security Contact:</div>
+          {getSecurityContact(data.securityContact)}
+        </div>
+      )}
 
       {/* Source Handle (Bottom) - Always present */}
       <Handle
         type="source"
         position={Position.Bottom}
-        id={`${data.id}-source`} // Ensure unique handle ID
+        id={`${data.id}-source`}
         className="w-2 h-2 !bg-gray-500 opacity-50"
         isConnectable={data.isConnectable ?? true}
       />
@@ -119,7 +141,7 @@ const nodeTypes: NodeTypes = {
 // Set origin to center for layout calculations
 const nodeOrigin: NodeOrigin = [0.5, 0.5];
 
-const OrgChartContent: React.FC = () => {
+const OrgChartContent = () => {
   const { toast } = useToast();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -225,6 +247,7 @@ const OrgChartContent: React.FC = () => {
             type: org.type,
             securityContact: org.securityContact || '',
             isConnectable: true,
+            hierarchyLevel: org.hierarchyLevel,
           },
         };
         newNodes.push(node);
@@ -293,38 +316,6 @@ const OrgChartContent: React.FC = () => {
       console.error('Error exporting chart as PNG:', error);
       // Corrected toast call
       toast({ title: "Error", description: 'Failed to export chart as PNG', variant: "destructive" });
-    }
-  }, [toast]); // Added toast dependency
-
-  // Export chart as PDF
-  const exportAsPDF = useCallback(async () => {
-    if (!reactFlowWrapper.current) return;
-
-    try {
-      // Corrected toast call
-      toast({ title: "Exporting...", description: 'Generating PDF export...' });
-      const canvas = await html2canvas(reactFlowWrapper.current, {
-        backgroundColor: '#f0f0f0', // Match CSS background
-        scale: 2,
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        foreignObjectRendering: true,
-      });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
-        unit: 'px',
-        format: [canvas.width, canvas.height],
-      });
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-      pdf.save('organizational-chart.pdf');
-      // Corrected toast call
-      toast({ title: "Success", description: 'Chart exported successfully as PDF' });
-    } catch (error) {
-      console.error('Error exporting chart as PDF:', error);
-      // Corrected toast call
-      toast({ title: "Error", description: 'Failed to export chart as PDF', variant: "destructive" });
     }
   }, [toast]); // Added toast dependency
 
@@ -409,10 +400,6 @@ const OrgChartContent: React.FC = () => {
             <FileDown className="w-4 h-4 mr-2" />
             Export PNG
           </Button>
-          <Button onClick={exportAsPDF} variant="outline">
-            <FileText className="w-4 h-4 mr-2" />
-            Export PDF
-          </Button>
           <Button onClick={exportAsJSON} variant="outline">
             <FileUp className="w-4 h-4 mr-2" />
             Export JSON
@@ -462,9 +449,15 @@ const OrgChartContent: React.FC = () => {
                     }}
                     nodeOrigin={nodeOrigin}
                   >
+                    <Background 
+                      color="#f0f0f0"
+                      gap={20}
+                      size={1}
+                      variant={BackgroundVariant.Dots}
+                    />
                     <Controls style={{ border: '1px solid #e2e8f0' }} />
                     <MiniMap 
-                      nodeColor={(node: Node<ChartNode['data']>) => getNodeColor(node.data?.type).split(' ')[0] || 'bg-gray-50'}
+                      nodeColor={(node: Node<ChartNode['data']>) => getNodeColor(node.data?.hierarchyLevel).split(' ')[0] || 'bg-gray-50'}
                       style={{ 
                         borderRadius: '0.5rem',
                         border: '1px solid #e2e8f0'
@@ -593,6 +586,7 @@ const OrgChartContent: React.FC = () => {
                                type: organization.type,
                                securityContact: organization.securityContact || '',
                                isConnectable: true,
+                               hierarchyLevel: organization.hierarchyLevel,
                              },
                           };
                           console.log("onDrop: Adding node:", newNode, "at position:", position);
@@ -606,9 +600,10 @@ const OrgChartContent: React.FC = () => {
                         event.dataTransfer.dropEffect = 'move';
                       }}
                     >
+                      <Background />
                       <Controls style={{ border: '1px solid #e2e8f0' }} />
                       <MiniMap 
-                        nodeColor={(node: Node<ChartNode['data']>) => getNodeColor(node.data?.type).split(' ')[0] || 'bg-gray-50'}
+                        nodeColor={(node: Node<ChartNode['data']>) => getNodeColor(node.data?.hierarchyLevel).split(' ')[0] || 'bg-gray-50'}
                         style={{ 
                           borderRadius: '0.5rem',
                           border: '1px solid #e2e8f0' 
@@ -648,7 +643,7 @@ const OrgChartContent: React.FC = () => {
   );
 };
 
-const OrgChart: React.FC = () => {
+const OrgChart = () => {
   return (
     <ReactFlowProvider>
       <OrgChartContent />
